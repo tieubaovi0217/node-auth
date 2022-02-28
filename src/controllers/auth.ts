@@ -1,52 +1,54 @@
-import isAuth from '../middlewares/isAuth';
-import attachUser from '../middlewares/attachUser';
-
 import AuthService from '../services/auth';
+import { validationResult } from 'express-validator';
 
-export default (app) => {
-  app.get('/', isAuth, attachUser, async (req, res) => {
-    console.log(req.user);
-    res.send('Authenticated');
-  });
+export default {
+  async login(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-  app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
     try {
       const authService = AuthService.getInstance();
-      const { user, token } = await authService.login(email, password);
+      const { user, token } = await authService.login(username, password);
       return res.json({ user, token, message: 'Successfully login' });
     } catch (err) {
       return res.status(400).json({ error: err.message });
     }
-  });
+  },
 
-  app.post('/signup', async (req, res) => {
+  async signup(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
-      const { email, password } = req.body;
       const authService = AuthService.getInstance();
-      const { user, token } = await authService.signUp(email, password);
+      const { user, token } = await authService.signUp(req.body);
       return res.json({ user, token, message: 'Successfully signup' });
     } catch (err) {
       return res.status(400).json({ error: err.message });
     }
-  });
+  },
 
-  app.post('/changepassword', isAuth, attachUser, async (req, res) => {
+  async changePassword(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
       const { newPassword } = req.body;
       const authService = AuthService.getInstance();
       const { user, token } = await authService.changePassword(
-        req.user.email,
+        req.user.username,
         newPassword,
       );
       return res.json({ user, token, message: 'Password changed' });
     } catch (err) {
       return res.status(400).json({ error: err.message });
     }
-  });
-
-  app.post('/logout', isAuth, async (req, res) => {
-    //TODO: remove token from client
-    res.send('Logout');
-  });
+  },
 };

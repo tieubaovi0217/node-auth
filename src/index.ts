@@ -4,7 +4,7 @@ import * as bodyParser from 'body-parser';
 import * as morgan from 'morgan';
 import * as cors from 'cors';
 // Routes
-import auth from './routes';
+import routes from './routes';
 
 const app = express();
 
@@ -12,9 +12,11 @@ const PORT = process.env.PORT || 5000;
 const DATABASE_URL = 'mongodb://localhost/auth';
 
 app.use(cors());
-app.use(morgan('tiny'));
+app.use(morgan('dev'));
 app.use(bodyParser.json());
-app.use('/auth', auth);
+
+// custom routes
+app.use(routes);
 
 app.listen(PORT, async () => {
   try {

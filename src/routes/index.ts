@@ -1,9 +1,11 @@
 import * as express from 'express';
 
-import user from './user';
+import authRouter from './auth';
+import resourcesRouter from './resources';
 
 const app = express();
 
-user(app);
+app.use('/auth', authRouter);
+app.use('/resources', resourcesRouter);
 
 export default app;

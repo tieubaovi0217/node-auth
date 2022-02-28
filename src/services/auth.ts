@@ -19,16 +19,13 @@ export default class AuthService {
     return this._instance;
   }
 
-  public async login(email, password) {
-    const userWithThisEmail = await UserModel.findOne({ email });
-    if (!userWithThisEmail) {
+  public async login(username, password) {
+    const userRecord = await UserModel.findOne({ username });
+    if (!userRecord) {
       throw new Error('User not found');
     }
 
-    const isSamePassword = await bcrypt.compare(
-      password,
-      userWithThisEmail.password,
-    );
+    const isSamePassword = await bcrypt.compare(password, userRecord.password);
 
     if (!isSamePassword) {
       throw new Error('Incorrect password');
@@ -36,16 +33,17 @@ export default class AuthService {
 
     return {
       user: {
-        email,
+        username,
       },
-      token: this.generateJWT(userWithThisEmail),
+      token: this.generateJWT(userRecord),
     };
   }
 
-  public async signUp(email, password) {
-    const userWithThisEmail = await UserModel.findOne({ email });
-    if (userWithThisEmail) {
-      throw new Error('User with that email already exists.');
+  public async signUp(data) {
+    const { username, email, password } = data;
+    const userRecord = await UserModel.findOne({ $or: [{ email, username }] });
+    if (userRecord) {
+      throw new Error('User with that email or username already exists.');
     }
 
     const hashedPassword = await bcrypt.hash(
@@ -53,6 +51,7 @@ export default class AuthService {
       Number(process.env.SALT_ROUNDS),
     );
     const newUser = new UserModel({
+      username,
       email,
       password: hashedPassword,
     });
@@ -60,15 +59,16 @@ export default class AuthService {
 
     return {
       user: {
-        email: newUserDoc.email,
+        username,
+        email,
       },
       token: this.generateJWT(newUserDoc),
     };
   }
 
-  public async changePassword(email, newPassword) {
-    const userWithThisEmail = await UserModel.findOne({ email });
-    if (!userWithThisEmail) {
+  public async changePassword(username, newPassword) {
+    const userRecord = await UserModel.findOne({ username });
+    if (!userRecord) {
       throw new Error('User with this email not exist');
     }
 
@@ -76,13 +76,13 @@ export default class AuthService {
       newPassword,
       Number(process.env.SALT_ROUNDS),
     );
-    userWithThisEmail.password = hashedPassword;
-    await userWithThisEmail.save();
+    userRecord.password = hashedPassword;
+    await userRecord.save();
     return {
       user: {
-        email,
+        username,
       },
-      token: this.generateJWT(userWithThisEmail),
+      token: this.generateJWT(userRecord),
     };
   }
 
