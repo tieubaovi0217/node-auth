@@ -3,6 +3,7 @@ import { config } from 'dotenv';
 import * as jwt from 'jsonwebtoken';
 
 config();
+
 export default (req, res, next) => {
   if (
     req.headers.authorization &&

@@ -1,14 +1,18 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import isAuth from '../middlewares/isAuth';
 import attachUser from '../middlewares/attachUser';
 
-import AuthService from '../services/auth';
-import { body, validationResult } from 'express-validator';
+import { body } from 'express-validator';
 import { Router } from 'express';
 
 import authControllers from '../controllers/auth';
 
 const router = Router();
+
+router.get('/', isAuth, (req, res) => {
+  res.json(req.user);
+});
 
 router.post(
   '/login',

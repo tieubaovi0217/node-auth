@@ -22,13 +22,13 @@ export default class AuthService {
   public async login(username, password) {
     const userRecord = await UserModel.findOne({ username });
     if (!userRecord) {
-      throw new Error('User not found');
+      throw new Error('Invalid username or password');
     }
 
     const isSamePassword = await bcrypt.compare(password, userRecord.password);
 
     if (!isSamePassword) {
-      throw new Error('Incorrect password');
+      throw new Error('Invalid username or password');
     }
 
     return {
@@ -41,9 +41,11 @@ export default class AuthService {
 
   public async signUp(data) {
     const { username, email, password } = data;
-    const userRecord = await UserModel.findOne({ $or: [{ email, username }] });
+    const userRecord = await UserModel.findOne({
+      $or: [{ email }, { username }],
+    });
     if (userRecord) {
-      throw new Error('User with that email or username already exists.');
+      throw new Error('Email or username is used');
     }
 
     const hashedPassword = await bcrypt.hash(
@@ -69,7 +71,7 @@ export default class AuthService {
   public async changePassword(username, newPassword) {
     const userRecord = await UserModel.findOne({ username });
     if (!userRecord) {
-      throw new Error('User with this email not exist');
+      throw new Error('Invalid username or email');
     }
 
     const hashedPassword = await bcrypt.hash(
@@ -99,25 +101,3 @@ export default class AuthService {
     );
   }
 }
-// async function main() {
-//   try {
-//     await mongoose.connect('mongodb://localhost/auth');
-
-//     const test = new AuthService();
-//     // const result = await test.signUp('test', 'test@gmail.com', 'test');
-//     // const result = await test.login('test', 'test');
-
-//     const result = test.generateJWT({
-//       _id: 'test',
-//       username: 'test',
-//       email: 'test',
-//     });
-//     console.log(result);
-//   } catch (err) {
-//     console.log(err);
-//   } finally {
-//     mongoose.connection.close();
-//   }
-// }
-
-// main();
