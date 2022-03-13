@@ -1,20 +1,38 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import * as path from 'path';
 import * as fs from 'fs';
 import { Router } from 'express';
+
 import attachUser from '../middlewares/attachUser';
 import isAuth from '../middlewares/isAuth';
 
-import { getDirectories } from '../helpers/getDirectories';
+import {
+  getDirectories,
+  getFolderSizeByGlob,
+} from '../helpers/getFilesAndDirectoriesInfo';
 
 const router = Router();
 
-//TODO: add auth middlewares
-// router.use(isAuth, attachUser);
+router.use(isAuth, attachUser);
+
+router.delete('/delete/:fileName', async (req, res) => {
+  res.json({ message: `delete file ${req.params.fileName}` });
+});
+
+router.put('/rename/:fileName', async (req, res) => {
+  res.json({ message: `rename file ${req.params.fileName}` });
+});
 
 router.get('*', async (req, res) => {
   //TODO: check carefully
   const subPath = req.path || '';
-  const dirPath = path.join(process.env.WEB_SERVER_RESOURCE_PATH, subPath);
+  const dirPath = path.join(
+    process.env.WEB_SERVER_RESOURCE_PATH,
+    req.user.username,
+    subPath,
+  );
+  console.log(dirPath);
 
   getDirectories(dirPath, function (err, response) {
     if (err) {
@@ -31,25 +49,30 @@ router.get('*', async (req, res) => {
         );
       });
 
-      const result = filterResponse.map((p) => {
+      const data = filterResponse.map((p) => {
         const stats = fs.statSync(p);
         const ext = path.extname(p);
-        const resourceSize = stats.size;
         const lastModified = stats.ctime;
-        const relativePath = path.relative(dirPath, p);
+        const name = path.basename(p);
         const isFile = stats.isFile();
-        const isDirectDirectory =
-          !relativePath.includes('\\') && stats.isDirectory();
+        // const relativePath = path.relative(dirPath, p);
+        let size = stats.size;
+
+        const isDirectDirectory = !name.includes('\\') && stats.isDirectory();
+        if (isDirectDirectory) size = getFolderSizeByGlob(p);
         return {
           ext,
           isFile,
           isDirectDirectory,
-          resourceSize,
+          size,
           lastModified,
-          name: relativePath,
+          name,
+          relativePath: p,
         };
       });
-      return res.json(result);
+
+      const totalSize = getFolderSizeByGlob(dirPath);
+      return res.json({ data, totalSize });
     }
   });
 });

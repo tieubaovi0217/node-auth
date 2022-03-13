@@ -1,6 +1,10 @@
+import * as path from 'path';
+import * as fs from 'fs';
+import { config } from 'dotenv';
 import AuthService from '../services/auth';
 import { validationResult } from 'express-validator';
 
+config();
 export default {
   async login(req, res) {
     const errors = validationResult(req);
@@ -12,7 +16,7 @@ export default {
     try {
       const authService = AuthService.getInstance();
       const { user, token } = await authService.login(username, password);
-      return res.json({ user, token, message: 'Successfully login' });
+      return res.json({ user, token, message: 'Successfully Login' });
     } catch (err) {
       return res.status(400).json({ error: err.message });
     }
@@ -27,7 +31,18 @@ export default {
     try {
       const authService = AuthService.getInstance();
       const { user, token } = await authService.signUp(req.body);
-      return res.json({ user, token, message: 'Successfully signup' });
+
+      // create a directory if user has registered successfully
+      const userDir = path.join(
+        process.env.WEB_SERVER_RESOURCE_PATH,
+        user.username,
+      );
+
+      if (!fs.existsSync(userDir)) {
+        fs.mkdirSync(userDir);
+      }
+
+      return res.json({ user, token, message: 'Successfully Signup' });
     } catch (err) {
       return res.status(400).json({ error: err.message });
     }
@@ -46,7 +61,7 @@ export default {
         req.user.username,
         newPassword,
       );
-      return res.json({ user, token, message: 'Password changed' });
+      return res.json({ user, token, message: 'Password Changed' });
     } catch (err) {
       return res.status(400).json({ error: err.message });
     }

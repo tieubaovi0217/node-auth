@@ -22,13 +22,12 @@ export default class AuthService {
   public async login(username, password) {
     const userRecord = await UserModel.findOne({ username });
     if (!userRecord) {
-      throw new Error('Invalid username or password');
+      throw new Error('Invalid credentials');
     }
-
     const isSamePassword = await bcrypt.compare(password, userRecord.password);
 
     if (!isSamePassword) {
-      throw new Error('Invalid username or password');
+      throw new Error('Invalid credentials');
     }
 
     return {
