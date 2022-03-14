@@ -14,8 +14,24 @@ import {
 
 const router = Router();
 
-router.delete('/delete/:fileName', isAuth, attachUser, async (req, res) => {
-  res.json({ message: `delete file ${req.params.fileName}` });
+// DELETE /root/delete/{filePath}
+router.delete('/delete/*', isAuth, attachUser, async (req, res) => {
+  const deletePath = req.params[0];
+
+  try {
+    fs.unlinkSync(
+      path.join(
+        process.env.WEB_SERVER_RESOURCE_PATH,
+        req.user.username,
+        deletePath,
+      ),
+    );
+
+    res.json({ message: `delete file ${deletePath} successfully` });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json(err);
+  }
 });
 
 router.put('/rename/:fileName', isAuth, attachUser, async (req, res) => {
@@ -63,7 +79,10 @@ router.get('*', isAuth, attachUser, async (req, res) => {
         const lastModified = stats.ctime;
         const name = path.basename(p);
         const isFile = stats.isFile();
-        // const relativePath = path.relative(dirPath, p);
+        const relativePath = path.relative(
+          path.join(process.env.WEB_SERVER_RESOURCE_PATH, req.user.username),
+          p,
+        );
         let size = stats.size;
 
         const isDirectDirectory = !name.includes('\\') && stats.isDirectory();
@@ -75,7 +94,7 @@ router.get('*', isAuth, attachUser, async (req, res) => {
           size,
           lastModified,
           name,
-          relativePath: p,
+          relativePath,
         };
       });
 
