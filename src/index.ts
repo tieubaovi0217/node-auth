@@ -2,6 +2,7 @@
 // @ts-nocheck
 import { config } from 'dotenv';
 import * as path from 'path';
+import * as fs from 'fs';
 import * as express from 'express';
 import * as mongoose from 'mongoose';
 import * as bodyParser from 'body-parser';
@@ -24,13 +25,23 @@ const DATABASE_URL = 'mongodb://localhost/auth';
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     // store files to corresponding directory for each user
-    cb(
-      null,
-      path.join(process.env.WEB_SERVER_RESOURCE_PATH, req.user.username),
+    // create a directory if user has registered successfully
+    const { path: subPath } = JSON.parse(JSON.stringify(req.body));
+
+    const userDir = path.join(
+      process.env.WEB_SERVER_RESOURCE_PATH,
+      req.user.username,
+      subPath.slice(5), //TODO: fix hardcoded
     );
+
+    if (!fs.existsSync(userDir)) {
+      fs.mkdirSync(userDir, { recursive: true });
+    }
+
+    cb(null, userDir);
   },
   filename: function (req, file, cb) {
-    // const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    // TODO: handle upload same file name
     cb(null, file.originalname);
   },
 });

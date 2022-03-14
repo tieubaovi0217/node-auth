@@ -32,16 +32,6 @@ export default {
       const authService = AuthService.getInstance();
       const { user, token } = await authService.signUp(req.body);
 
-      // create a directory if user has registered successfully
-      const userDir = path.join(
-        process.env.WEB_SERVER_RESOURCE_PATH,
-        user.username,
-      );
-
-      if (!fs.existsSync(userDir)) {
-        fs.mkdirSync(userDir);
-      }
-
       return res.json({ user, token, message: 'Successfully Signup' });
     } catch (err) {
       return res.status(400).json({ error: err.message });

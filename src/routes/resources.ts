@@ -14,17 +14,26 @@ import {
 
 const router = Router();
 
-router.use(isAuth, attachUser);
-
-router.delete('/delete/:fileName', async (req, res) => {
+router.delete('/delete/:fileName', isAuth, attachUser, async (req, res) => {
   res.json({ message: `delete file ${req.params.fileName}` });
 });
 
-router.put('/rename/:fileName', async (req, res) => {
+router.put('/rename/:fileName', isAuth, attachUser, async (req, res) => {
   res.json({ message: `rename file ${req.params.fileName}` });
 });
 
-router.get('*', async (req, res) => {
+router.put('/mkdir', isAuth, attachUser, async (req, res) => {
+  const { folderName } = res.body;
+  res.send(folderName);
+  // const subPath = req.path || '';
+  // const dirPath = path.join(
+  //   process.env.WEB_SERVER_RESOURCE_PATH,
+  //   req.user.username,
+  //   subPath,
+  // );
+});
+
+router.get('*', isAuth, attachUser, async (req, res) => {
   //TODO: check carefully
   const subPath = req.path || '';
   const dirPath = path.join(
@@ -32,7 +41,6 @@ router.get('*', async (req, res) => {
     req.user.username,
     subPath,
   );
-  console.log(dirPath);
 
   getDirectories(dirPath, function (err, response) {
     if (err) {
