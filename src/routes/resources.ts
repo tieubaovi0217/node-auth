@@ -2,6 +2,7 @@
 // @ts-nocheck
 import * as path from 'path';
 import * as fs from 'fs';
+import * as rimraf from 'rimraf';
 import { Router } from 'express';
 
 import attachUser from '../middlewares/attachUser';
@@ -16,16 +17,19 @@ const router = Router();
 
 // DELETE /root/delete/{filePath}
 router.delete('/delete/*', isAuth, attachUser, async (req, res) => {
-  const deletePath = req.params[0];
+  const deletePath = path.join(
+    process.env.WEB_SERVER_RESOURCE_PATH,
+    req.user.username,
+    req.params[0],
+  );
 
   try {
-    fs.unlinkSync(
-      path.join(
-        process.env.WEB_SERVER_RESOURCE_PATH,
-        req.user.username,
-        deletePath,
-      ),
-    );
+    const stats = fs.statSync(deletePath);
+    if (stats.isDirectory()) {
+      rimraf.sync(deletePath);
+    } else {
+      fs.unlinkSync(deletePath);
+    }
 
     res.json({ message: `delete file ${deletePath} successfully` });
   } catch (err) {
