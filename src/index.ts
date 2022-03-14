@@ -31,7 +31,7 @@ const storage = multer.diskStorage({
     const userDir = path.join(
       process.env.WEB_SERVER_RESOURCE_PATH,
       req.user.username,
-      subPath.slice(5), //TODO: fix hardcoded
+      subPath,
     );
 
     if (!fs.existsSync(userDir)) {
@@ -61,7 +61,7 @@ app.use(
   upload.single('file'),
   async (req, res) => {
     console.log(req.file);
-    res.send('upload');
+    res.send('Files uploaded successfully');
   },
 );
 
