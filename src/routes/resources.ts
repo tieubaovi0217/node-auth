@@ -15,15 +15,33 @@ import {
 
 const router = Router();
 
-// DELETE /root/delete/{filePath}
-router.delete('/delete/*', isAuth, attachUser, async (req, res) => {
-  const deletePath = path.join(
-    process.env.WEB_SERVER_RESOURCE_PATH,
-    req.user.username,
-    req.params[0],
-  );
-
+router.post('/mkdir', isAuth, attachUser, async (req, res) => {
   try {
+    const dir = path.join(
+      process.env.WEB_SERVER_RESOURCE_PATH,
+      req.user.username,
+      req.body.relativePath,
+      req.body.newFolderName,
+    );
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    } else {
+      throw new Error('Create new folder failed');
+    }
+    res.json(true);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.post('/delete', isAuth, attachUser, async (req, res) => {
+  try {
+    const deletePath = path.join(
+      process.env.WEB_SERVER_RESOURCE_PATH,
+      req.user.username,
+      req.body.path,
+    );
+
     const stats = fs.statSync(deletePath);
     if (stats.isDirectory()) {
       rimraf.sync(deletePath);
@@ -34,23 +52,12 @@ router.delete('/delete/*', isAuth, attachUser, async (req, res) => {
     res.json({ message: `delete file ${deletePath} successfully` });
   } catch (err) {
     console.log(err);
-    res.status(400).json(err);
+    res.status(400).json({ error: err.message });
   }
 });
 
 router.put('/rename/:fileName', isAuth, attachUser, async (req, res) => {
   res.json({ message: `rename file ${req.params.fileName}` });
-});
-
-router.put('/mkdir', isAuth, attachUser, async (req, res) => {
-  const { folderName } = res.body;
-  res.send(folderName);
-  // const subPath = req.path || '';
-  // const dirPath = path.join(
-  //   process.env.WEB_SERVER_RESOURCE_PATH,
-  //   req.user.username,
-  //   subPath,
-  // );
 });
 
 router.get('*', isAuth, attachUser, async (req, res) => {
@@ -64,8 +71,8 @@ router.get('*', isAuth, attachUser, async (req, res) => {
 
   getDirectories(dirPath, function (err, response) {
     if (err) {
-      console.log('Error', err);
-      return res.status(500).json(err);
+      console.log(err);
+      return res.status(500).json({ error: err.message });
     } else {
       const filterResponse = response.filter((p) => {
         const stats = fs.statSync(p);
