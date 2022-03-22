@@ -20,7 +20,7 @@ config();
 const app = express();
 
 const PORT = process.env.PORT || 5000;
-const DATABASE_URL = 'mongodb://localhost/auth';
+const DATABASE_URL = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?authSource=admin`;
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -51,6 +51,10 @@ const upload = multer({ storage: storage });
 app.use(cors());
 app.use(morgan('dev'));
 app.use(bodyParser.json());
+
+app.get('/is_auth', isAuth, async (req, res) => {
+  res.status(200).send();
+});
 
 // custom routes
 app.use(routes);

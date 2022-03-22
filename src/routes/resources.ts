@@ -62,23 +62,26 @@ router.put('/rename/:fileName', isAuth, attachUser, async (req, res) => {
 
 router.get('*', isAuth, attachUser, async (req, res) => {
   //TODO: check carefully
-  const subPath = req.path || '';
+  const subPath = req.path === '/' ? '' : req.path;
   const dirPath = path.join(
     process.env.WEB_SERVER_RESOURCE_PATH,
     req.user.username,
     subPath,
   );
+  console.log('[subPath]', subPath);
+  console.log('[dirPath]', dirPath);
 
   getDirectories(dirPath, function (err, response) {
     if (err) {
       console.log(err);
-      return res.status(500).json({ error: err.message });
+      return res.status(400).json({ error: err.message });
     } else {
       const filterResponse = response.filter((p) => {
         const stats = fs.statSync(p);
         const relativePath = path.relative(dirPath, p);
 
         return (
+          !relativePath.includes('/') &&
           !relativePath.includes('\\') &&
           (stats.isFile() || stats.isDirectory())
         );
@@ -96,7 +99,8 @@ router.get('*', isAuth, attachUser, async (req, res) => {
         );
         let size = stats.size;
 
-        const isDirectDirectory = !name.includes('\\') && stats.isDirectory();
+        const isDirectDirectory =
+          !name.includes('/') && !name.includes('\\') && stats.isDirectory();
         if (isDirectDirectory) size = getFolderSizeByGlob(p);
         return {
           ext,
