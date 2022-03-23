@@ -69,15 +69,33 @@ app.use(
   },
 );
 
-app.listen(PORT, async () => {
-  try {
-    await mongoose.connect(DATABASE_URL);
-
+const main = () => {
+  app.listen(PORT, async () => {
     console.log(
       `The Authentication Server is listening at http://localhost:${PORT}`,
     );
     console.log('Connected to the database');
-  } catch (err) {
-    console.log(err);
-  }
-});
+  });
+};
+
+const doRetryConnectDB = async () => {
+  return mongoose.connect(DATABASE_URL, function (err) {
+    if (err) {
+      console.error(
+        'Failed to connect to mongo on startup - retrying in 3 sec',
+        err,
+      );
+      setTimeout(doRetryConnectDB, 3000);
+    } else {
+      main();
+    }
+  });
+};
+
+doRetryConnectDB();
+// app.listen(PORT, async () => {
+//   console.log(
+//     `The Authentication Server is listening at http://localhost:${PORT}`,
+//   );
+//   console.log('Connected to the database');
+// });
