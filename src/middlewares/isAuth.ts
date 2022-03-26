@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 
 import * as jwt from 'jsonwebtoken';
+import { ErrorHandler } from '../error';
 
 config();
 
@@ -13,11 +14,11 @@ export default (req, res, next) => {
       const token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.SECRET_KEY);
       req.token = decoded;
-      return next();
+      next();
     } catch (err) {
-      return res.status(401).json({ error: err.message });
+      next(err);
     }
   }
 
-  res.status(401).json({ error: 'No authorization token was found' });
+  next(new ErrorHandler(403, 'No authorization token was found'));
 };

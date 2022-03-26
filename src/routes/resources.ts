@@ -8,10 +8,7 @@ import { Router } from 'express';
 import attachUser from '../middlewares/attachUser';
 import isAuth from '../middlewares/isAuth';
 
-import {
-  getDirectories,
-  getFolderSizeByGlob,
-} from '../helpers/getFilesAndDirectoriesInfo';
+import { getDirectories, getFolderSizeByGlob } from '../helpers';
 
 const router = Router();
 

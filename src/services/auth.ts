@@ -2,6 +2,7 @@ import { config } from 'dotenv';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import UserModel from '../models/user';
+import { ErrorHandler } from '../error';
 
 config();
 
@@ -21,13 +22,14 @@ export default class AuthService {
 
   public async login(username, password) {
     const userRecord = await UserModel.findOne({ username });
-    if (!userRecord) {
-      throw new Error('Invalid credentials');
-    }
-    const isSamePassword = await bcrypt.compare(password, userRecord.password);
+
+    const isSamePassword = await bcrypt.compare(
+      password,
+      userRecord ? userRecord.password : '',
+    );
 
     if (!isSamePassword) {
-      throw new Error('Invalid credentials');
+      throw new ErrorHandler(401, 'Invalid credentials');
     }
 
     return {
@@ -44,7 +46,7 @@ export default class AuthService {
       $or: [{ email }, { username }],
     });
     if (userRecord) {
-      throw new Error('Email or username is used');
+      throw new ErrorHandler(400, 'Email or username is used');
     }
 
     const hashedPassword = await bcrypt.hash(
@@ -64,26 +66,6 @@ export default class AuthService {
         email,
       },
       token: this.generateJWT(newUserDoc),
-    };
-  }
-
-  public async changePassword(username, newPassword) {
-    const userRecord = await UserModel.findOne({ username });
-    if (!userRecord) {
-      throw new Error('Invalid username or email');
-    }
-
-    const hashedPassword = await bcrypt.hash(
-      newPassword,
-      Number(process.env.SALT_ROUNDS),
-    );
-    userRecord.password = hashedPassword;
-    await userRecord.save();
-    return {
-      user: {
-        username,
-      },
-      token: this.generateJWT(userRecord),
     };
   }
 

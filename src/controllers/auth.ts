@@ -3,57 +3,39 @@ import * as fs from 'fs';
 import { config } from 'dotenv';
 import AuthService from '../services/auth';
 import { validationResult } from 'express-validator';
+import { ErrorHandler } from '../error';
 
 config();
 export default {
-  async login(req, res) {
+  async login(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return next(new ErrorHandler(400, errors.array()[0].msg));
     }
 
     const { username, password } = req.body;
     try {
       const authService = AuthService.getInstance();
       const { user, token } = await authService.login(username, password);
-      return res.json({ user, token, message: 'Successfully Login' });
+      res.json({ user, token, message: 'Successfully Login' });
     } catch (err) {
-      return res.status(400).json({ error: err.message });
+      next(err);
     }
   },
 
-  async signup(req, res) {
+  async signup(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return next(new ErrorHandler(400, errors.array()[0].msg));
     }
 
     try {
       const authService = AuthService.getInstance();
       const { user, token } = await authService.signUp(req.body);
 
-      return res.json({ user, token, message: 'Successfully Signup' });
+      res.json({ user, token, message: 'Successfully Signup' });
     } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
-  },
-
-  async changePassword(req, res) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    try {
-      const { newPassword } = req.body;
-      const authService = AuthService.getInstance();
-      const { user, token } = await authService.changePassword(
-        req.user.username,
-        newPassword,
-      );
-      return res.json({ user, token, message: 'Password Changed' });
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
+      next(err);
     }
   },
 };

@@ -7,18 +7,19 @@ import { body } from 'express-validator';
 import { Router } from 'express';
 
 import authControllers from '../controllers/auth';
+import { ErrorHandler } from '../error';
 
 const router = Router();
 
-router.get('/', isAuth, (req, res) => {
+router.get('/', isAuth, attachUser, (req, res) => {
   res.json(req.user);
 });
 
 router.post(
   '/login',
   body('username')
-    .isLength({ min: 4 })
     .trim()
+    .isLength({ min: 4 })
     .withMessage('username must be at least 4 characters long'),
   authControllers.login,
 );
@@ -33,7 +34,7 @@ router.post(
     .isLength({ min: 4 })
     .custom((value, { req }) => {
       if (value !== req.body.confirmPassword) {
-        throw new Error('Passwords do not match');
+        throw new ErrorHandler(400, 'Passwords do not match');
       }
 
       return value;
@@ -41,18 +42,7 @@ router.post(
   authControllers.signup,
 );
 
-router.post(
-  '/changepassword',
-  isAuth,
-  attachUser,
-  body('newPassword')
-    .isLength({ min: 4 })
-    .withMessage('password must be at least 4 characters long'),
-  authControllers.changePassword,
-);
-
 router.post('/logout', isAuth, async (req, res) => {
-  //TODO: remove token from client
   res.send('Logout');
 });
 
