@@ -12,6 +12,6 @@ export default async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    next(err);
+    throw new ErrorHandler(500, 'Internal server error');
   }
 };

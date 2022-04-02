@@ -1,6 +1,6 @@
-import * as path from 'path';
-import * as fs from 'fs';
 import { config } from 'dotenv';
+import * as fs from 'fs';
+import * as path from 'path';
 import AuthService from '../services/auth';
 import { validationResult } from 'express-validator';
 import { ErrorHandler } from '../error';
@@ -17,7 +17,7 @@ export default {
     try {
       const authService = AuthService.getInstance();
       const { user, token } = await authService.login(username, password);
-      res.json({ user, token, message: 'Successfully Login' });
+      res.json({ user, token });
     } catch (err) {
       next(err);
     }
@@ -33,7 +33,10 @@ export default {
       const authService = AuthService.getInstance();
       const { user, token } = await authService.signUp(req.body);
 
-      res.json({ user, token, message: 'Successfully Signup' });
+      await fs.promises.mkdir(
+        path.join(process.env.WEB_SERVER_RESOURCE_PATH, req.user.username),
+      );
+      res.json({ user, token });
     } catch (err) {
       next(err);
     }

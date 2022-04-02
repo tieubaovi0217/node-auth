@@ -10,7 +10,7 @@ export class ErrorHandler extends Error {
 
 export const handleError = (err: ErrorHandler, res) => {
   const { statusCode, message } = err;
-  res.status(statusCode).json({
+  return res.status(statusCode).json({
     status: 'error',
     statusCode,
     message,

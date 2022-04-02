@@ -14,11 +14,11 @@ export default (req, res, next) => {
       const token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.SECRET_KEY);
       req.token = decoded;
-      next();
+      return next();
     } catch (err) {
-      next(err);
+      throw new ErrorHandler(401, err.message);
     }
   }
 
-  next(new ErrorHandler(403, 'No authorization token was found'));
+  throw new ErrorHandler(403, 'No authorization token was found');
 };

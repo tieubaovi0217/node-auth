@@ -11,8 +11,8 @@ import { ErrorHandler } from '../error';
 
 const router = Router();
 
-router.get('/', isAuth, attachUser, (req, res) => {
-  res.json(req.user);
+router.get('/is_auth', isAuth, attachUser, (req, res) => {
+  res.json({ username: req.user.username, email: req.user.email });
 });
 
 router.post(

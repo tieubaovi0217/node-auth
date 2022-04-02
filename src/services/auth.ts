@@ -35,6 +35,7 @@ export default class AuthService {
     return {
       user: {
         username,
+        email: userRecord.email,
       },
       token: this.generateJWT(userRecord),
     };
@@ -74,6 +75,7 @@ export default class AuthService {
       {
         data: {
           id: userData._id,
+          username: userData.username,
           email: userData.email,
         },
       },

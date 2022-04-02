@@ -6,8 +6,12 @@ COPY package*.json .
 
 RUN npm install
 
+RUN npm install -g pm2
+
 COPY . .
 
-CMD ["npm", "start"]
+COPY .env build/
+
+CMD ["npm", "run", "serve"]
 
 EXPOSE 5000
