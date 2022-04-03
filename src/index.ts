@@ -33,7 +33,6 @@ app.use((err, req, res, next) => {
 const main = () => {
   app.listen(PORT, async () => {
     console.log(`Server is listening at port ${PORT}`);
-    console.log('Connected to the database!');
   });
 };
 
@@ -46,6 +45,7 @@ const doRetryConnectDB = async () => {
       );
       setTimeout(doRetryConnectDB, 5000);
     } else {
+      console.log('Connected to the database!');
       main();
     }
   });

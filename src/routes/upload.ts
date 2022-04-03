@@ -22,17 +22,16 @@ const storage = multer.diskStorage({
       req.user.username,
       req.body.destination,
     );
-    try {
-      await fs.promises.stat(userDir);
-    } catch (err) {
-      // dir not exists
-      fs.mkdirSync(userDir, { recursive: true });
-    }
 
-    cb(null, userDir);
+    try {
+      await fs.promises.mkdir(userDir);
+    } catch (err) {
+      // directory exists
+    } finally {
+      cb(null, userDir);
+    }
   },
   filename: async function (req, file, cb) {
-    // TODO: handle upload same file name
     const filePath = path.join(
       process.env.WEB_SERVER_RESOURCE_PATH,
       req.user.username,

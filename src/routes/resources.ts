@@ -26,7 +26,7 @@ router.post('/mkdir', isAuth, attachUser, async (req, res, next) => {
     );
     res.json('Create new folder successfully');
   } catch (err) {
-    console.log(err);
+    console.error(err);
     next(new ErrorHandler(400, 'Create new folder failed'));
   }
 });
@@ -47,7 +47,7 @@ router.post('/delete', isAuth, attachUser, async (req, res, next) => {
     }
     res.json({ message: `Delete file ${deletePath} successfully` });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     next(new ErrorHandler(400, 'Delete file or folder failed'));
   }
 });

@@ -19,7 +19,7 @@ export default {
       const { user, token } = await authService.login(username, password);
       res.json({ user, token });
     } catch (err) {
-      next(err);
+      next(new ErrorHandler(400, err.message || 'Login failed'));
     }
   },
 
@@ -34,11 +34,12 @@ export default {
       const { user, token } = await authService.signUp(req.body);
 
       await fs.promises.mkdir(
-        path.join(process.env.WEB_SERVER_RESOURCE_PATH, req.user.username),
+        path.join(process.env.WEB_SERVER_RESOURCE_PATH, user.username),
       );
       res.json({ user, token });
     } catch (err) {
-      next(err);
+      console.error(err);
+      next(new ErrorHandler(400, err.message || 'Signup failed'));
     }
   },
 };
