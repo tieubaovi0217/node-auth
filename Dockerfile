@@ -10,8 +10,6 @@ RUN npm install -g pm2
 
 COPY . .
 
-COPY .env build/
-
 CMD ["npm", "run", "serve"]
 
 EXPOSE 5000
