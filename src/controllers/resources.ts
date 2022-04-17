@@ -40,9 +40,13 @@ export default {
 
       const stat = await fs.promises.stat(deletePath);
       if (stat.isDirectory()) {
-        await rimrafPromise(deletePath);
+        rimraf(deletePath, () => {
+          console.log(`${deletePath} folder is deleted`);
+        });
       } else {
-        await fs.promises.unlink(deletePath);
+        fs.unlink(deletePath, () => {
+          console.log(`${deletePath} is deleted`);
+        });
       }
       res.json({ message: `Delete file ${deletePath} successfully` });
     } catch (err) {
