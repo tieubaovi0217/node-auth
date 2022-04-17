@@ -1,7 +1,7 @@
 import * as glob from 'glob';
 import * as fs from 'fs';
 
-export const getDirectories = (src, callback) => {
+export const getAllFilesAndDirectories = (src, callback) => {
   glob(src + '/**/*', callback);
 };
 
