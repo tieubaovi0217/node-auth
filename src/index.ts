@@ -1,22 +1,23 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import { config } from 'dotenv';
 import * as express from 'express';
 import * as mongoose from 'mongoose';
 import * as bodyParser from 'body-parser';
 import * as morgan from 'morgan';
-import * as cors from 'cors';
+
+import { DEFAULT_PORT, RETRY_TIME } from './common/constants';
+
+// import * as cors from 'cors';
 
 // Routes
 import routes from './routes';
 
-import { handleError } from './error';
+// Middlewares
+import errorHandlerMiddleware from './middlewares/errorHandler';
 
 config();
 
 const app = express();
 
-const PORT = process.env.PORT || 5000;
 const DATABASE_URL = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?authSource=admin`;
 
 // app.use(cors());
@@ -26,29 +27,32 @@ app.use(bodyParser.json());
 // custom routes
 app.use(routes);
 
-app.use((err, req, res, next) => {
-  handleError(err, res);
-});
+app.use(errorHandlerMiddleware);
 
 const main = () => {
-  app.listen(PORT, async () => {
-    console.log(`Server is listening at port ${PORT}`);
+  doRetryConnectDB(() => {
+    const PORT = process.env.PORT || DEFAULT_PORT;
+    app.listen(PORT, async () => {
+      console.log(`Server is listening at port ${PORT}`);
+    });
   });
 };
 
-const doRetryConnectDB = async () => {
+const doRetryConnectDB = async (callback: () => void) => {
   return mongoose.connect(DATABASE_URL, function (err) {
     if (err) {
       console.error(
-        'Failed to connect to mongo on startup - retrying in 5 sec',
+        `Failed to connect to mongo on startup - retrying in ${RETRY_TIME} sec`,
         err,
       );
-      setTimeout(doRetryConnectDB, 5000);
+      setTimeout(() => {
+        doRetryConnectDB(callback);
+      }, RETRY_TIME * 1000);
     } else {
       console.log('Connected to the database!');
-      main();
+      callback();
     }
   });
 };
 
-doRetryConnectDB();
+main();

@@ -1,8 +1,14 @@
+import { Response, NextFunction } from 'express';
+
 import UserModel from '../models/user';
+import { ErrorHandler } from '../middlewares/errorHandler';
+import { AuthorizedRequest } from '../common/types';
 
-import { ErrorHandler } from '../error';
-
-export default async (req, res, next) => {
+export default async (
+  req: AuthorizedRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { email } = req.token.data;
     const user = await UserModel.findOne({ email });

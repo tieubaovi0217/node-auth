@@ -1,8 +1,11 @@
 import { config } from 'dotenv';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
+
 import UserModel from '../models/user';
-import { ErrorHandler } from '../error';
+import { ErrorHandler } from '../middlewares/errorHandler';
+
+import { DecodedJwtToken, LoginPayload, User } from '../common/types';
 
 config();
 
@@ -12,7 +15,7 @@ export default class AuthService {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
 
-  public static getInstance(): AuthService {
+  public static getInstance() {
     if (!this._instance) {
       this._instance = new AuthService();
     }
@@ -20,7 +23,10 @@ export default class AuthService {
     return this._instance;
   }
 
-  public async login(username, password) {
+  public async login(
+    username: string,
+    password: string,
+  ): Promise<LoginPayload> {
     const userRecord = await UserModel.findOne({ username });
 
     const isSamePassword = await bcrypt.compare(
@@ -41,8 +47,8 @@ export default class AuthService {
     };
   }
 
-  public async signUp(data) {
-    const { username, email, password } = data;
+  public async signUp(userData: User): Promise<LoginPayload> {
+    const { username, email, password } = userData;
     const userRecord = await UserModel.findOne({
       $or: [{ email }, { username }],
     });
@@ -70,14 +76,15 @@ export default class AuthService {
     };
   }
 
-  generateJWT(userData) {
+  generateJWT(userData: User) {
+    const userDataTokenPayload: DecodedJwtToken = {
+      id: userData._id,
+      username: userData.username,
+      email: userData.email,
+    };
     return jwt.sign(
       {
-        data: {
-          id: userData._id,
-          username: userData.username,
-          email: userData.email,
-        },
+        data: userDataTokenPayload,
       },
       process.env.SECRET_KEY,
       { expiresIn: '6h' },

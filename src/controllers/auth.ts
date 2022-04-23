@@ -3,11 +3,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import AuthService from '../services/auth';
 import { validationResult } from 'express-validator';
-import { ErrorHandler } from '../error';
+import { ErrorHandler } from '../middlewares/errorHandler';
+
+import { Request, Response, NextFunction } from 'express';
 
 config();
 export default {
-  async login(req, res, next) {
+  async login(req: Request, res: Response, next: NextFunction) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return next(new ErrorHandler(400, errors.array()[0].msg));
@@ -15,23 +17,24 @@ export default {
 
     const { username, password } = req.body;
     try {
-      const authService = AuthService.getInstance();
-      const { user, token } = await authService.login(username, password);
+      const { user, token } = await AuthService.getInstance().login(
+        username,
+        password,
+      );
       res.json({ user, token });
     } catch (err) {
       next(new ErrorHandler(400, err.message || 'Login failed'));
     }
   },
 
-  async signup(req, res, next) {
+  async signup(req: Request, res: Response, next: NextFunction) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return next(new ErrorHandler(400, errors.array()[0].msg));
     }
 
     try {
-      const authService = AuthService.getInstance();
-      const { user, token } = await authService.signUp(req.body);
+      const { user, token } = await AuthService.getInstance().signUp(req.body);
 
       await fs.promises.mkdir(
         path.join(process.env.WEB_SERVER_RESOURCE_PATH, user.username),

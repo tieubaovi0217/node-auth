@@ -1,19 +1,25 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import * as path from 'path';
 import * as fs from 'fs';
 import * as rimraf from 'rimraf';
-import * as util from 'util';
+// import * as util from 'util';
 
 import { config } from 'dotenv';
-import { ErrorHandler } from '../error';
+import { ErrorHandler } from '../middlewares/errorHandler';
+
+import { Response, NextFunction } from 'express';
+
+import { AuthorizedRequest } from '../common/types';
 
 config();
 
-const rimrafPromise = util.promisify(rimraf);
+// const rimrafPromise = util.promisify(rimraf);
 
 export default {
-  async createFolder(req, res, next) {
+  async createFolder(
+    req: AuthorizedRequest,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
       await fs.promises.mkdir(
         path.join(
@@ -30,7 +36,11 @@ export default {
     }
   },
 
-  async deleteResource(req, res, next) {
+  async deleteResource(
+    req: AuthorizedRequest,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
       const deletePath = path.join(
         process.env.WEB_SERVER_RESOURCE_PATH,
@@ -55,5 +65,5 @@ export default {
     }
   },
 
-  async rename(req, res, next) {},
+  // async rename(req, res, next) {},
 };
