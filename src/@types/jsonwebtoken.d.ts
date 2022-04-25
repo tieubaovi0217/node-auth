@@ -1,5 +1,3 @@
-/// <reference types="jsonwebtoken" />
-
 import { DecodedJwtToken } from 'src/common/types';
 
 declare module 'jsonwebtoken' {

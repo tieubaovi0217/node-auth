@@ -8,7 +8,7 @@
     "build-ts": "tsc",
     "build": "npm run lint && npm run build-ts",
     "lint": "eslint . --ext .ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run lint && npm run build",
     "serve": "tsc && pm2-runtime build/index.js"
   },
   "keywords": [],

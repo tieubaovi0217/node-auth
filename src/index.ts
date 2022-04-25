@@ -1,8 +1,8 @@
 import { config } from 'dotenv';
-import * as express from 'express';
-import * as mongoose from 'mongoose';
-import * as bodyParser from 'body-parser';
 import * as morgan from 'morgan';
+import * as mongoose from 'mongoose';
+import * as express from 'express';
+import * as bodyParser from 'body-parser';
 
 import { DEFAULT_PORT, RETRY_TIME } from './common/constants';
 
