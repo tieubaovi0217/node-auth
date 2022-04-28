@@ -7,7 +7,7 @@ import CloudConvert = require('cloudconvert');
 import * as https from 'https';
 import { finished } from 'stream';
 import { relative } from 'path';
-import DecompressZip from 'decompress-zip';
+import DecompressZip = require('decompress-zip');
 import { folder } from 'decompress-zip/lib/extractors';
 import { async } from 'q';
 
