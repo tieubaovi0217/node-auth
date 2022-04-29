@@ -34,11 +34,12 @@ export async function ResizeImage(path, ratio) {
 }
 
 export async function ListFilesInFolder(folderpath, resize = false) {
-  // console.log(folderpath);
+  console.log(folderpath);
   const relativePath = path.relative('/tmp', folderpath);
-  // console.log(relativePath);
-  const filteredTree = dirTree(
-    relativePath,
+  console.log(__dirname);
+  console.log(relativePath);
+  var filteredTree = dirTree(
+    folderpath,
     {
       extensions: /\.(png|jpg)$/,
       normalizePath: true,
@@ -48,11 +49,13 @@ export async function ListFilesInFolder(folderpath, resize = false) {
       // console.log(item.path);
     },
   );
-  // console.log(filteredTree);
+  console.log(filteredTree);
   if (resize == true) {
     for (let i = 0; i < filteredTree.children.length; ++i) {
       console.log(filteredTree.children[i].path);
       await ResizeImage(filteredTree.children[i].path, 5);
+	//   var childPath = filteredTree.children[i].path;
+	//   filteredTree.children[i].path = path.relative('/tmp/root', childPath)
     }
   }
   return JSON.stringify(filteredTree);
