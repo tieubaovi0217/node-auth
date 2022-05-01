@@ -39,7 +39,7 @@ export async function ListFilesInFolder(folderpath, resize = false) {
   const relativePath = path.relative('/tmp', folderpath);
   console.log(__dirname);
   console.log(relativePath);
-  var filteredTree = dirTree(
+  const filteredTree = dirTree(
     folderpath,
     {
       extensions: /\.(png|jpg)$/,
@@ -55,8 +55,8 @@ export async function ListFilesInFolder(folderpath, resize = false) {
     for (let i = 0; i < filteredTree.children.length; ++i) {
       console.log(filteredTree.children[i].path);
       await ResizeImage(filteredTree.children[i].path, 5);
-	//   var childPath = filteredTree.children[i].path;
-	//   filteredTree.children[i].path = path.relative('/tmp/root', childPath)
+      //   var childPath = filteredTree.children[i].path;
+      //   filteredTree.children[i].path = path.relative('/tmp/root', childPath)
     }
   }
   return JSON.stringify(filteredTree);
