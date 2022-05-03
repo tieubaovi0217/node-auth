@@ -65,5 +65,25 @@ export default {
     }
   },
 
-  // async rename(req, res, next) {},
+  async rename(req: AuthorizedRequest, res: Response, next: NextFunction) {
+    try {
+      const oldPath = path.join(
+        process.env.WEB_SERVER_RESOURCE_PATH,
+        req.user.username,
+        req.body.oldPath,
+      );
+      const newPath = path.join(
+        process.env.WEB_SERVER_RESOURCE_PATH,
+        req.user.username,
+        req.body.newPath,
+      );
+      await fs.promises.rename(oldPath, newPath);
+      res.json({
+        message: `${req.body.oldPath} has been renamed to ${req.body.newPath}`,
+      });
+    } catch (error) {
+      console.log(error);
+      next(new ErrorHandler(400, 'Rename file or folder failed'));
+    }
+  },
 };
