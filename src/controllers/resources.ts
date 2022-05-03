@@ -1,13 +1,12 @@
-import * as path from 'path';
+import { config } from 'dotenv';
 import * as fs from 'fs';
 import * as rimraf from 'rimraf';
 // import * as util from 'util';
-
-import { config } from 'dotenv';
-import { ErrorHandler } from '../middlewares/errorHandler';
-
 import { Response, NextFunction } from 'express';
 
+import { ErrorHandler } from '../middlewares/errorHandler';
+
+import { makePath } from '../shares/makePath';
 import { AuthorizedRequest } from '../common/types';
 
 config();
@@ -22,8 +21,7 @@ export default {
   ) {
     try {
       await fs.promises.mkdir(
-        path.join(
-          process.env.WEB_SERVER_RESOURCE_PATH,
+        makePath(
           req.user.username,
           req.body.destination || '',
           req.body.newFolderName || '',
@@ -42,11 +40,7 @@ export default {
     next: NextFunction,
   ) {
     try {
-      const deletePath = path.join(
-        process.env.WEB_SERVER_RESOURCE_PATH,
-        req.user.username,
-        req.body.path,
-      );
+      const deletePath = makePath(req.user.username, req.body.path);
 
       const stat = await fs.promises.stat(deletePath);
       if (stat.isDirectory()) {
@@ -67,16 +61,8 @@ export default {
 
   async rename(req: AuthorizedRequest, res: Response, next: NextFunction) {
     try {
-      const oldPath = path.join(
-        process.env.WEB_SERVER_RESOURCE_PATH,
-        req.user.username,
-        req.body.oldPath,
-      );
-      const newPath = path.join(
-        process.env.WEB_SERVER_RESOURCE_PATH,
-        req.user.username,
-        req.body.newPath,
-      );
+      const oldPath = makePath(req.user.username, req.body.oldPath);
+      const newPath = makePath(req.user.username, req.body.newPath);
       await fs.promises.rename(oldPath, newPath);
       res.json({
         message: `${req.body.oldPath} has been renamed to ${req.body.newPath}`,

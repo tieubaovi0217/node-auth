@@ -1,9 +1,10 @@
-import { config } from 'dotenv';
 import * as fs from 'fs';
-import * as path from 'path';
-import AuthService from '../services/auth';
+import { config } from 'dotenv';
 import { validationResult } from 'express-validator';
+
+import AuthService from '../services/auth';
 import { ErrorHandler } from '../middlewares/errorHandler';
+import { makePath } from '../shares/makePath';
 
 import { Request, Response, NextFunction } from 'express';
 
@@ -36,9 +37,7 @@ export default {
     try {
       const { user, token } = await AuthService.getInstance().signUp(req.body);
 
-      await fs.promises.mkdir(
-        path.join(process.env.WEB_SERVER_RESOURCE_PATH, user.username),
-      );
+      await fs.promises.mkdir(makePath(user.username, ''));
       res.json({ user, token });
     } catch (err) {
       console.error(err);
