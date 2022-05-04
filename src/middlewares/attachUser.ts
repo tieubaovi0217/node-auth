@@ -18,6 +18,9 @@ export default async (
     req.user = user;
     next();
   } catch (err) {
-    throw new ErrorHandler(500, 'Internal server error');
+    if (err.statusCode === 401) {
+      return next(err);
+    }
+    next(new ErrorHandler(500, 'Internal server error'));
   }
 };

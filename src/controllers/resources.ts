@@ -10,8 +10,7 @@ import { ErrorHandler } from '../middlewares/errorHandler';
 import { makePath } from '../shares/makePath';
 import { AuthorizedRequest } from '../common/types';
 import { checkValidFolderName } from '../shares/checkValidity';
-import { regexCheckFile } from '../common/constants';
-
+import { checkResourceExists } from '../shares/checkResourceExists';
 config();
 
 // const rimrafPromise = util.promisify(rimraf);
@@ -45,7 +44,7 @@ export default {
     try {
       const deletePath = makePath(req.user.username, req.body.path);
 
-      const stat = await fs.promises.stat(deletePath);
+      const stat = await checkResourceExists(deletePath);
       if (stat.isDirectory()) {
         rimraf(deletePath, () => {
           console.log(`${deletePath} folder is deleted`);
@@ -57,9 +56,6 @@ export default {
       }
       res.json({ message: `Delete file ${deletePath} successfully` });
     } catch (err) {
-      if (err.code === 'ENOENT') {
-        return next(new ErrorHandler(400, 'No such file or directory'));
-      }
       next(err);
     }
   },
@@ -71,7 +67,7 @@ export default {
         req.body.currentPath,
         req.body.oldPath,
       );
-      const stats = await fs.promises.stat(oldPath);
+      const stats = await checkResourceExists(oldPath);
       if (stats.isFile()) {
         console.log(req.body.newPath);
         const isValidFileName = /^[a-z0-9_.@()-]+\.[^.]+$/i.test(
@@ -97,9 +93,6 @@ export default {
         message: `${req.body.oldPath} has been renamed to ${req.body.newPath}`,
       });
     } catch (err) {
-      if (err.code === 'ENOENT') {
-        return next(new ErrorHandler(400, 'No such file or directory'));
-      }
       next(err);
     }
   },

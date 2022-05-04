@@ -20,11 +20,12 @@ export default (req: AuthorizedRequest, res: Response, next: NextFunction) => {
         process.env.SECRET_KEY,
       ) as jwt.JwtPayload;
       req.token = decoded;
-      return next();
+      next();
     } catch (err) {
-      throw new ErrorHandler(401, err.message);
+      next(new ErrorHandler(401, err.message));
     }
+    return;
   }
 
-  throw new ErrorHandler(403, 'No authorization token was found');
+  next(new ErrorHandler(403, 'No authorization token was found'));
 };
