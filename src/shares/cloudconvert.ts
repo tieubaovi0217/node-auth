@@ -29,6 +29,7 @@ export async function ResizeImage(path, ratio) {
           Math.round(metadata.height / ratio),
         )
         .toBuffer(function (err, buffer) {
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
           fs.writeFile(inputJpg, buffer, function (e) {});
         });
     });
