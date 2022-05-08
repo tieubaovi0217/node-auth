@@ -9,8 +9,7 @@ import { ErrorHandler } from '../middlewares/errorHandler';
 
 import { makePath } from '../shares/makePath';
 import { AuthorizedRequest } from '../common/types';
-import { checkValidFolderName } from '../shares/checkValidity';
-import { checkResourceExists } from '../shares/checkResourceExists';
+import { regexCheckFolder } from '../common/constants';
 config();
 
 // const rimrafPromise = util.promisify(rimraf);
@@ -22,7 +21,9 @@ export default {
     next: NextFunction,
   ) {
     try {
-      checkValidFolderName(req.body.newFolderName);
+      if (!regexCheckFolder.test(req.body.newFolderName)) {
+        throw new ErrorHandler(400, 'Invalid folder name');
+      }
       await fs.promises.mkdir(
         makePath(
           req.user.username,
@@ -44,7 +45,7 @@ export default {
     try {
       const deletePath = makePath(req.user.username, req.body.path);
 
-      const stat = await checkResourceExists(deletePath);
+      const stat = await fs.promises.stat(deletePath);
       if (stat.isDirectory()) {
         rimraf(deletePath, () => {
           console.log(`${deletePath} folder is deleted`);
@@ -67,7 +68,7 @@ export default {
         req.body.currentPath,
         req.body.oldPath,
       );
-      const stats = await checkResourceExists(oldPath);
+      const stats = await fs.promises.stat(oldPath);
       if (stats.isFile()) {
         console.log(req.body.newPath);
         const isValidFileName = /^[a-z0-9_.@()-]+\.[^.]+$/i.test(
@@ -80,7 +81,9 @@ export default {
         if (!isValidFileName || !isValidExtension)
           throw new ErrorHandler(400, 'Invalid file name');
       } else {
-        checkValidFolderName(req.body.newPath);
+        if (!regexCheckFolder.test(req.body.newPath)) {
+          throw new ErrorHandler(400, 'Invalid folder name');
+        }
       }
 
       const newPath = makePath(

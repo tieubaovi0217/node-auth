@@ -1,4 +1,4 @@
-import { DecodedJwtToken } from 'src/common/types';
+import { DecodedJwtToken } from '../common/types';
 
 declare module 'jsonwebtoken' {
   export interface JwtPayload {
