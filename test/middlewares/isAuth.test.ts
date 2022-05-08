@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import isAuth from '../src/middlewares/isAuth';
+import isAuth from '../../src/middlewares/isAuth';
 
 afterEach(() => {
   jest.restoreAllMocks();
@@ -50,7 +50,7 @@ describe('given malformed jwt', () => {
     req.headers.authorization = 'Bearer malformed';
   });
 
-  it('should throw err if given malformed jwt', () => {
+  it('should throw error if given malformed jwt', () => {
     jest.spyOn(jwt, 'verify').mockImplementation(() => {
       throw new Error('malformed jwt');
     });
@@ -67,7 +67,7 @@ describe('not given jwt token', () => {
     req.headers.authorization = undefined;
   });
 
-  it('should throw err no authorization token was found', () => {
+  it('should throw error no authorization token was found', () => {
     isAuth(req, res, next);
 
     expect(next).toBeCalledWith(new Error('No authorization token was found'));

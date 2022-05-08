@@ -12,8 +12,12 @@ module.exports = {
   testMatch: ['**/test/**/*.test.(ts|js)'],
   testEnvironment: 'node',
   verbose: true,
-  // collectCoverage: true,
-  // collectCoverageFrom: ['src/**/*.ts', '!src/@types/**/*'],
+  collectCoverage: true,
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/@types/**/*',
+    '!src/common/constants.ts',
+  ],
   // coverageThreshold: {
   //   global: {
   //     lines: 90,

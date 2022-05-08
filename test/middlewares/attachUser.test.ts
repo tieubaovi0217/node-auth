@@ -1,5 +1,5 @@
-import attachUser from '../src/middlewares/attachUser';
-import UserModel from '../src/models/user';
+import attachUser from '../../src/middlewares/attachUser';
+import UserModel from '../../src/models/user';
 
 afterEach(() => {
   jest.restoreAllMocks();

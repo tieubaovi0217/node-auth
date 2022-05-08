@@ -6,7 +6,7 @@ jest.mock('path', () => {
   };
 });
 
-import { makePath } from '../src/shares/makePath';
+import { makePath } from '../../src/shares/makePath';
 
 it('should make path correctly', () => {
   process.env.WEB_SERVER_RESOURCE_PATH = '/tmp/root';
