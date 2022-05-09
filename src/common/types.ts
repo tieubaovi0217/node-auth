@@ -5,6 +5,7 @@ import { Document, ObjectId } from 'mongoose';
 export interface UserPayload {
   username: string;
   email: string;
+  avatarUrl?: string;
 }
 
 export interface LoginPayload {
@@ -16,6 +17,7 @@ export interface User extends Document {
   username: string;
   email: string;
   password: string;
+  avatarUrl?: string;
 }
 
 export interface DecodedJwtToken {
