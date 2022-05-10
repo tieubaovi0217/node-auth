@@ -10,14 +10,10 @@ import { AuthorizedRequest } from '../common/types';
 
 const router = Router();
 
-router.get(
-  '/is_auth',
-  isAuth,
-  attachUser,
-  (req: AuthorizedRequest, res: Response) => {
-    res.json({ username: req.user.username, email: req.user.email });
-  },
-);
+router.get('/is_auth', isAuth, (req: AuthorizedRequest, res: Response) => {
+  // res.json({ username: req.user.username, email: req.user.email });
+  res.json({ message: 'Authenticated' });
+});
 
 router.post(
   '/login',
