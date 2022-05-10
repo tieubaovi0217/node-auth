@@ -10,11 +10,13 @@ config();
 
 export default (req: AuthorizedRequest, res: Response, next: NextFunction) => {
   if (
-    req.headers.authorization &&
-    req.headers.authorization.split(' ')[0] === 'Bearer'
+    (req.headers.authorization &&
+      req.headers.authorization.split(' ')[0] === 'Bearer') ||
+    req.query.token
   ) {
     try {
-      const token = req.headers.authorization.split(' ')[1];
+      const token =
+        (req.query.token as string) || req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(
         token,
         process.env.SECRET_KEY,

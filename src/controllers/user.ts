@@ -1,10 +1,4 @@
-import * as fs from 'fs';
 import { config } from 'dotenv';
-import { validationResult } from 'express-validator';
-
-import AuthService from '../services/auth';
-import { ErrorHandler } from '../middlewares/errorHandler';
-import { makePath } from '../shares/makePath';
 
 import { AuthorizedRequest } from '../common/types';
 
@@ -18,6 +12,7 @@ export default {
     res: Response,
     next: NextFunction,
   ) {
+    console.log(req.body);
     const { avatarUrl } = req.body;
     req.user.avatarUrl = avatarUrl;
     req.user.save();
