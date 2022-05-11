@@ -42,7 +42,7 @@ export default class AuthService {
       user: {
         username,
         email: userRecord.email,
-        avatarUrl: userRecord?.avatarUrl,
+        avatarUrl: userRecord.avatarUrl,
       },
       token: this.generateJWT(userRecord),
     };

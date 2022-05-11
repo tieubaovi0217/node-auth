@@ -14,6 +14,7 @@ const setUpTest = () => {
   email = 'test@gmail.com';
   req = {
     headers: {},
+    query: {},
   };
   res = {};
   next = jest.fn();
@@ -50,7 +51,7 @@ describe('given malformed jwt', () => {
     req.headers.authorization = 'Bearer malformed';
   });
 
-  it('should throw error if given malformed jwt', () => {
+  it('should throw error', () => {
     jest.spyOn(jwt, 'verify').mockImplementation(() => {
       throw new Error('malformed jwt');
     });
@@ -67,7 +68,7 @@ describe('not given jwt token', () => {
     req.headers.authorization = undefined;
   });
 
-  it('should throw error no authorization token was found', () => {
+  it('should throw error', () => {
     isAuth(req, res, next);
 
     expect(next).toBeCalledWith(new Error('No authorization token was found'));

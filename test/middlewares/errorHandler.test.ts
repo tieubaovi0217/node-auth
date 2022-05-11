@@ -1,5 +1,9 @@
 import errorHandler, { ErrorHandler } from '../../src/middlewares/errorHandler';
 
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
 describe('errorHandler middleware', () => {
   let err: any;
   let req: any;

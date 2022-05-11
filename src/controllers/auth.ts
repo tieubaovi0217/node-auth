@@ -11,7 +11,13 @@ import { Request, Response, NextFunction } from 'express';
 config();
 export default {
   async login(req: Request, res: Response, next: NextFunction) {
-    const { username, password } = req.body;
+    const {
+      username,
+      password,
+    }: {
+      username: string;
+      password: string;
+    } = req.body;
     const errors = validationResult(req);
     try {
       if (!errors.isEmpty()) {
