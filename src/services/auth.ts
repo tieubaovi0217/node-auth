@@ -88,7 +88,7 @@ export default class AuthService {
         data: userDataTokenPayload,
       },
       process.env.SECRET_KEY,
-      { expiresIn: '6h' },
+      { expiresIn: '1d' },
     );
   }
 }
