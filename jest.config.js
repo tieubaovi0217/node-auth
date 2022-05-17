@@ -17,6 +17,9 @@ module.exports = {
     'src/**/*.ts',
     '!src/@types/**/*',
     '!src/common/constants.ts',
+    '!src/routes/**/*',
+    '!src/index.ts',
+    '!src/shares/cloudconvert.ts',
   ],
   // coverageThreshold: {
   //   global: {
