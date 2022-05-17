@@ -16,7 +16,6 @@ router.get(
   attachUser,
   (req: AuthorizedRequest, res: Response) => {
     res.json({ username: req.user.username, email: req.user.email });
-    // res.json({ message: 'Authenticated' });
   },
 );
 

@@ -30,3 +30,9 @@ export interface AuthorizedRequest extends Request {
   user: User;
   token: JwtPayload;
 }
+
+export interface Resource {
+  id: string;
+  url: string;
+  type: 'Picture' | 'Document' | 'Video';
+}

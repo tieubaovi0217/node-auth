@@ -10,6 +10,8 @@ import { ErrorHandler } from '../middlewares/errorHandler';
 import { makePath } from '../shares/makePath';
 import { AuthorizedRequest } from '../common/types';
 import { regexCheckFolder } from '../common/constants';
+import ResourceModel from '../models/resource';
+
 config();
 
 // const rimrafPromise = util.promisify(rimraf);
@@ -95,6 +97,20 @@ export default {
       res.json({
         message: `${req.body.oldPath} has been renamed to ${req.body.newPath}`,
       });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async updateURLResource(
+    req: AuthorizedRequest,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { id, url, type } = req.body;
+      await ResourceModel.updateOne({ id }, { url, type }, { upsert: true });
+      res.json({ id, url, type, message: 'Updated successfully' });
     } catch (err) {
       next(err);
     }
