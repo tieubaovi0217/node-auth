@@ -7,6 +7,13 @@ import resourcesController from '../controllers/resources';
 
 const router = Router();
 
+router.get(
+  '/all-resource-url',
+  isAuth,
+  attachUser,
+  resourcesController.getAllResourceURL,
+);
+
 router.post('/mkdir', isAuth, attachUser, resourcesController.createFolder);
 
 router.post('/delete', isAuth, attachUser, resourcesController.deleteResource);
@@ -17,7 +24,7 @@ router.post(
   '/update-url',
   isAuth,
   attachUser,
-  resourcesController.updateURLResource,
+  resourcesController.updateResourceURL,
 );
 
 export default router;

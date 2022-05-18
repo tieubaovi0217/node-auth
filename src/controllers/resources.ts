@@ -102,7 +102,7 @@ export default {
     }
   },
 
-  async updateURLResource(
+  async updateResourceURL(
     req: AuthorizedRequest,
     res: Response,
     next: NextFunction,
@@ -111,6 +111,19 @@ export default {
       const { id, url, type } = req.body;
       await ResourceModel.updateOne({ id }, { url, type }, { upsert: true });
       res.json({ id, url, type, message: 'Updated successfully' });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async getAllResourceURL(
+    req: AuthorizedRequest,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const result = await ResourceModel.find({});
+      res.json(result);
     } catch (err) {
       next(err);
     }
