@@ -11,6 +11,7 @@ import { makePath } from '../shares/makePath';
 import { AuthorizedRequest } from '../common/types';
 import { regexCheckFolder } from '../common/constants';
 import ResourceModel from '../models/resource';
+import AuthService from '../services/auth';
 
 config();
 
@@ -122,8 +123,12 @@ export default {
     next: NextFunction,
   ) {
     try {
-      const result = await ResourceModel.find({});
-      res.json(result);
+      const resources = await ResourceModel.find({});
+
+      res.json({
+        resources,
+        token: AuthService.getInstance().generateJWT(req.user),
+      });
     } catch (err) {
       next(err);
     }
