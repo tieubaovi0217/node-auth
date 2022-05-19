@@ -13,11 +13,6 @@ router.post('/delete', isAuth, attachUser, resourcesController.deleteResource);
 
 router.put('/rename', isAuth, attachUser, resourcesController.rename);
 
-router.post(
-  '/update-url',
-  isAuth,
-  attachUser,
-  resourcesController.updateResourceURL,
-);
+router.post('/:id', isAuth, attachUser, resourcesController.updateResourceURL);
 
 export default router;

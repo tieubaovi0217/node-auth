@@ -111,11 +111,13 @@ export default {
     next: NextFunction,
   ) {
     try {
-      const { id, url, type, conferenceId = {} } = req.body; // set conferenceId default to {} to fail validation
-      const existingResource = await ResourceModel.findOne({ id });
+      const { url, type, conferenceId = {} } = req.body; // set conferenceId default to {} to fail validation
+      const existingResource = await ResourceModel.findOne({
+        id: req.params.id,
+      });
       if (!existingResource) {
         const resource = new ResourceModel({
-          id,
+          id: req.params.id,
           url,
           type,
           user: req.user._id,
@@ -131,7 +133,12 @@ export default {
       existingResource.conferenceId = conferenceId;
       await existingResource.save();
 
-      res.json({ id, url, type, message: 'Updated successfully' });
+      res.json({
+        id: req.params.id,
+        url,
+        type,
+        message: 'Updated successfully',
+      });
     } catch (err) {
       next(err);
     }
