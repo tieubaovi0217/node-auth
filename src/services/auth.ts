@@ -77,7 +77,7 @@ export default class AuthService {
     };
   }
 
-  generateJWT(userData: User) {
+  generateJWT(userData: User, expiresIn = '1d') {
     const userDataTokenPayload: DecodedJwtToken = {
       id: userData._id,
       username: userData.username,
@@ -88,7 +88,7 @@ export default class AuthService {
         data: userDataTokenPayload,
       },
       process.env.SECRET_KEY,
-      { expiresIn: '1d' },
+      { expiresIn },
     );
   }
 }

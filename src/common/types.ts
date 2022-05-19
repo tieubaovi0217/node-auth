@@ -34,5 +34,15 @@ export interface AuthorizedRequest extends Request {
 export interface Resource {
   id: string;
   url: string;
+  token: string;
   type: 'Picture' | 'Document' | 'Video';
+  user: any;
+  conferenceId: any;
+}
+
+export interface Conference {
+  id: number;
+  name: string;
+  host: any;
+  resources: any;
 }

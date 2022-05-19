@@ -13,6 +13,8 @@ import { regexCheckFolder } from '../common/constants';
 import ResourceModel from '../models/resource';
 import AuthService from '../services/auth';
 
+import * as mongoose from 'mongoose';
+
 config();
 
 // const rimrafPromise = util.promisify(rimraf);
@@ -109,26 +111,27 @@ export default {
     next: NextFunction,
   ) {
     try {
-      const { id, url, type } = req.body;
-      await ResourceModel.updateOne({ id }, { url, type }, { upsert: true });
+      const { id, url, type, conferenceId = {} } = req.body; // set conferenceId default to {} to fail validation
+      const existingResource = await ResourceModel.findOne({ id });
+      if (!existingResource) {
+        const resource = new ResourceModel({
+          id,
+          url,
+          type,
+          user: req.user._id,
+          token: AuthService.getInstance().generateJWT(req.user, '9999 years'),
+          conferenceId: new mongoose.Types.ObjectId(conferenceId),
+        });
+        await resource.validate();
+        return await resource.save();
+      }
+
+      existingResource.url = url;
+      existingResource.type = type;
+      existingResource.conferenceId = conferenceId;
+      await existingResource.save();
+
       res.json({ id, url, type, message: 'Updated successfully' });
-    } catch (err) {
-      next(err);
-    }
-  },
-
-  async getAllResourceURL(
-    req: AuthorizedRequest,
-    res: Response,
-    next: NextFunction,
-  ) {
-    try {
-      const resources = await ResourceModel.find({});
-
-      res.json({
-        resources,
-        token: AuthService.getInstance().generateJWT(req.user),
-      });
     } catch (err) {
       next(err);
     }
