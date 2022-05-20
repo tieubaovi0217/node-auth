@@ -39,6 +39,8 @@ resourceSchema.pre('save', async function (next) {
   if (!existingConference) {
     throw new Error('conferenceId is invalid or not exist');
   }
+  existingConference.resources.push(this._id);
+  await existingConference.save();
   next();
 });
 
