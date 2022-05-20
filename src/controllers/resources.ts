@@ -124,7 +124,6 @@ export default {
           token: AuthService.getInstance().generateJWT(req.user, '9999 years'),
           conferenceId: new mongoose.Types.ObjectId(conferenceId),
         });
-        await resource.validate();
         return await resource.save();
       }
 

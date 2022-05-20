@@ -34,15 +34,15 @@ const resourceSchema = new mongoose.Schema<Resource>({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
-resourceSchema.pre('save', async function (next) {
-  const existingConference = await ConferenceModel.findById(this.conferenceId);
-  if (!existingConference) {
-    throw new Error('conferenceId is invalid or not exist');
-  }
-  existingConference.resources.push(this._id);
-  await existingConference.save();
-  next();
-});
+// resourceSchema.pre('save', async function (next) {
+//   const existingConference = await ConferenceModel.findById(this.conferenceId);
+//   if (!existingConference) {
+//     throw new Error('conferenceId is invalid or not exist');
+//   }
+//   existingConference.resources.push(this._id);
+//   await existingConference.save();
+//   next();
+// });
 
 const ResourceModel = mongoose.model<Resource>('Resource', resourceSchema);
 
