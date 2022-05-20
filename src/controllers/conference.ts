@@ -30,19 +30,22 @@ export default {
     next: NextFunction,
   ) {
     try {
-      const resources = await (
-        await ConferenceModel.findById(req.params.id)
-      ).populate([
-        {
-          path: 'host',
-        },
-        {
-          path: 'resources',
-          populate: {
-            path: 'user',
-          },
-        },
-      ]);
+      // const resources = await (
+      //   await ConferenceModel.findById(req.params.id)
+      // ).populate([
+      //   {
+      //     path: 'host',
+      //   },
+      //   {
+      //     path: 'resources',
+      //     populate: {
+      //       path: 'user',
+      //     },
+      //   },
+      // ]);
+      const resources = await ResourceModel.find({
+        conferenceId: req.params.id,
+      }).populate('user');
 
       res.json(resources);
     } catch (err) {
