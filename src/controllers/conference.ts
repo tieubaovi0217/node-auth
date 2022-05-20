@@ -38,6 +38,9 @@ export default {
         },
         {
           path: 'resources',
+          populate: {
+            path: 'user',
+          },
         },
       ]);
 
