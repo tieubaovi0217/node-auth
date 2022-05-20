@@ -7,8 +7,8 @@ import conferenceController from '../controllers/conference';
 
 const router = Router();
 
-router.get('/:id', isAuth, attachUser, conferenceController.getAllResourceURL);
-
 router.post('/', isAuth, attachUser, conferenceController.createConference);
+
+router.get('/:id', isAuth, attachUser, conferenceController.getAllResourceURL);
 
 export default router;

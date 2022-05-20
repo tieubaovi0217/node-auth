@@ -124,13 +124,13 @@ export default {
           token: AuthService.getInstance().generateJWT(req.user, '9999 years'),
           conferenceId: new mongoose.Types.ObjectId(conferenceId),
         });
-        return await resource.save();
+        await resource.save();
+      } else {
+        existingResource.url = url;
+        existingResource.type = type;
+        existingResource.conferenceId = conferenceId;
+        await existingResource.save();
       }
-
-      existingResource.url = url;
-      existingResource.type = type;
-      existingResource.conferenceId = conferenceId;
-      await existingResource.save();
 
       res.json({
         id: req.params.id,
