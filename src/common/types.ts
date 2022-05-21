@@ -2,6 +2,8 @@ import { Request } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
 import { Document, ObjectId } from 'mongoose';
 
+import * as mongoose from 'mongoose';
+
 export interface UserPayload {
   username: string;
   email: string;
@@ -36,13 +38,13 @@ export interface Resource {
   url: string;
   token: string;
   type: 'Picture' | 'Document' | 'Video';
-  user: any;
-  conferenceId: any;
+  user: mongoose.Types.ObjectId;
+  conferenceId: mongoose.Types.ObjectId;
 }
 
 export interface Conference {
   id: number;
   name: string;
-  host: any;
-  resources: any;
+  host: mongoose.Types.ObjectId;
+  resources: Array<mongoose.Types.ObjectId>;
 }
