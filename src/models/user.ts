@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema<User>({
   avatarUrl: {
     type: String,
   },
+
+  tokens: {
+    type: mongoose.Schema.Types.Mixed,
+  },
 });
 
 export default mongoose.model<User>('User', userSchema);

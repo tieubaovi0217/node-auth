@@ -20,6 +20,7 @@ export interface User extends Document {
   email: string;
   password: string;
   avatarUrl?: string;
+  tokens: any;
 }
 
 export interface DecodedJwtToken {
