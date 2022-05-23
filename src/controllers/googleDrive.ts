@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import * as fs from 'fs';
-import { v4 as uuidv4 } from 'uuid';
 import { Response, NextFunction } from 'express';
 import { google } from 'googleapis';
 
@@ -10,6 +9,7 @@ import { AuthorizedRequest } from '../common/types';
 // import ResourceModel from '../models/resource';
 // import ConferenceModel from '../models/conference';
 import UserModel from '../models/user';
+import { DRIVE_SCOPES } from '../common/constants';
 
 import { getOAuth2Client } from '../services/google';
 
@@ -21,15 +21,12 @@ export default {
   ) {
     try {
       const oAuth2Client = await getOAuth2Client();
-
-      const scopes = ['https://www.googleapis.com/auth/drive.readonly'];
-
       const url = oAuth2Client.generateAuthUrl({
         // 'online' (default) or 'offline' (gets refresh_token)
         access_type: 'offline',
 
         // If you only need one scope you can pass it as a string
-        scope: scopes,
+        scope: DRIVE_SCOPES,
         state: req.user._id.toString(),
         // prompt: 'consent',
       });
@@ -42,21 +39,16 @@ export default {
 
   async saveToken(req: AuthorizedRequest, res: Response, next: NextFunction) {
     try {
-      console.log(req.query);
-      const { code } = req.query;
+      console.log('[saveToken] - req.query = ', req.query);
       const oAuth2Client = await getOAuth2Client();
+      const { code } = req.query;
       const { tokens } = await oAuth2Client.getToken(code);
-      console.log(tokens);
+      console.log('[saveToken] - tokens = ', tokens);
 
       const { state: userId } = req.query;
       await UserModel.updateOne({ _id: userId }, { tokens: tokens });
-      // if (!user) {
-      //   throw new ErrorHandler(401, 'User not found');
-      // }
-      // console.log(user);
-      // user.tokens = tokens;
-      // await user.save();
-      res.redirect('//localhost:3000/root');
+
+      res.redirect(`${process.env.WEB_URL}/root`);
     } catch (error) {
       next(error);
     }
@@ -67,13 +59,12 @@ export default {
       if (!req.user.tokens) {
         return res.json([]);
       }
+      console.log('[listFiles] - tokens = ', req.user.tokens);
+
       const oAuth2Client = await getOAuth2Client();
-
-      // const { tokens } = await oAuth2Client.getToken(code);
-      console.log('tokens:', req.user.tokens);
       oAuth2Client.setCredentials(req.user.tokens);
-
       const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+
       const result = await getFiles(drive);
       res.json(result);
     } catch (error) {
@@ -87,10 +78,11 @@ export default {
         return res.status(403);
       }
       const { fileId } = req.params;
+      console.log('[download] - fileId = ', fileId);
 
       downloadFile(req.user.tokens, fileId)
         .then(() => {
-          res.json('File synced with your web server');
+          res.json(`File ${fileId} synced!`);
         })
         .catch((err) => {
           console.log(err);
@@ -104,56 +96,60 @@ export default {
 
 const downloadFile = async (tokens, fileId: string) => {
   const oAuth2Client = await getOAuth2Client();
-  const drive = google.drive({ version: 'v3', auth: oAuth2Client });
   oAuth2Client.setCredentials(tokens);
+  const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
-  return drive.files
-    .get({ fileId, alt: 'media' }, { responseType: 'stream' })
-    .then((res) => {
-      return new Promise((resolve, reject) => {
-        const filePath = uuidv4(); // TODO: change this
-        console.log(`writing to ${filePath}`);
-        const dest = fs.createWriteStream(filePath);
-        let progress = 0;
-
-        res.data
-          .on('end', () => {
-            console.log('Done downloading file.');
-            resolve(filePath);
-          })
-          .on('error', (err) => {
-            console.error('Error downloading file.');
-            reject(err);
-          })
-          .on('data', (d) => {
-            progress += d.length;
-            if (process.stdout.isTTY) {
-              process.stdout.clearLine();
-              process.stdout.cursorTo(0);
-              process.stdout.write(`Downloaded ${progress} bytes.`);
-            }
-          })
-          .pipe(dest);
+  drive.files.get({ fileId, fields: 'name' }).then((re) => {
+    return drive.files
+      .get({ fileId, alt: 'media' }, { responseType: 'stream' })
+      .then((res) => {
+        return new Promise((resolve, reject) => {
+          const filePath = re.data.name;
+          console.log(`[download] - writing to ${filePath}`);
+          const dest = fs.createWriteStream(filePath);
+          let progress = 0;
+          console.log('[download] - res = ', res);
+          res.data
+            .on('end', () => {
+              console.log('[download] - Done downloading file.');
+              resolve(filePath);
+            })
+            .on('error', (err) => {
+              console.error('[download] - Error downloading file.');
+              reject(err);
+            })
+            .on('data', (d) => {
+              progress += d.length;
+              if (process.stdout.isTTY) {
+                process.stdout.clearLine();
+                process.stdout.cursorTo(0);
+                process.stdout.write(`Downloaded ${progress} bytes.`);
+              }
+            })
+            .pipe(dest);
+        });
       });
-    });
+  });
 };
 
 const getFiles = async (drive, pageToken = '') => {
-  let files = [];
-  const result = await drive.files.list({
+  const params = {
     // pageSize default to 100
+    pageSize: 300,
     q: "mimeType != 'application/vnd.google-apps.folder' and trashed = false",
     pageToken,
     fields:
-      'nextPageToken, files(id, name, originalFilename, size, fileExtension, mimeType, webContentLink, webViewLink)',
-  });
-  files = [...files, ...result.data.files];
+      'nextPageToken, files(id, name, size, mimeType, webContentLink, webViewLink)',
+  };
+  let result = await drive.files.list(params);
 
-  console.log('nextPageToken: ', result.data.nextPageToken);
+  let files = result.data.files;
+  while (result.data.nextPageToken) {
+    console.log('[getFiles] - nextPageToken: ', result.data.nextPageToken);
+    params.pageToken = result.data.nextPageToken;
+    result = await drive.files.list(params);
 
-  if (result.data.nextPageToken) {
-    const nextFiles = await getFiles(drive, result.data.nextPageToken);
-    files = [...files, ...nextFiles];
+    files = files.concat(result.data.files);
   }
 
   return files;

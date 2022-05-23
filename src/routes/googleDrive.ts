@@ -16,13 +16,8 @@ router.get(
   googleDriveController.getOAuth2URL,
 );
 
-router.get(
-  '/:fileId/download',
-  isAuth,
-  attachUser,
-  googleDriveController.download,
-);
-
 router.get('/files', isAuth, attachUser, googleDriveController.listFiles);
+
+router.get('/:fileId', isAuth, attachUser, googleDriveController.download);
 
 export default router;
