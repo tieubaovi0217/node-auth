@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import e, { Response, Router } from 'express';
+import e, { NextFunction, Response, Router } from 'express';
 
 import { ListFilesInFolder, Unzip, ConvertFile } from '../shares/cloudconvert';
 
@@ -15,29 +15,33 @@ router.get(
   '/:fileName',
   isAuth,
   attachUser,
-  async (req: AuthorizedRequest, res: Response) => {
-    const filePath = makePath(req.user.username, req.params.fileName);
-    const folderPath = makePath(req.user.username, path.parse(filePath).name);
-    console.log('file path:' + filePath);
-    console.log('folder path:' + folderPath);
-    if (fs.existsSync(folderPath)) {
-      console.log('folder exist');
-      //create json and send
-      const result = await ListFilesInFolder(folderPath);
-      res.send(result);
-    } else {
-      console.log('folder not exist');
-      // convert file and make folder
-      const zipName = await ConvertFile(filePath, req.user.username);
-      Unzip(
-        `${process.env.WEB_SERVER_RESOURCE_PATH}/${req.user.username}`,
-        zipName,
-        res,
-      );
-      // res.send(result);
-      // res.send(ListFilesInFolder(folderPath));
+  async (req: AuthorizedRequest, res: Response, next: NextFunction) => {
+    try {
+      const filePath = makePath(req.user.username, req.params.fileName);
+      const folderPath = makePath(req.user.username, path.parse(filePath).name);
+      console.log('file path:' + filePath);
+      console.log('folder path:' + folderPath);
+      if (fs.existsSync(folderPath)) {
+        console.log('folder exist');
+        //create json and send
+        const result = await ListFilesInFolder(folderPath);
+        return res.send(result);
+      } else {
+        console.log('folder not exist');
+        // convert file and make folder
+        const zipName = await ConvertFile(filePath, req.user.username);
+        Unzip(
+          `${process.env.WEB_SERVER_RESOURCE_PATH}/${req.user.username}`,
+          zipName,
+          res,
+        );
+        // res.send(result);
+        // res.send(ListFilesInFolder(folderPath));
+      }
+      // res.send('finish job');
+    } catch (error) {
+      next(error);
     }
-    // res.send("finish job");
   },
 );
 
@@ -45,14 +49,18 @@ router.get(
   '/:folder/:fileName',
   isAuth,
   attachUser,
-  (req: AuthorizedRequest, res: Response) => {
-    const filePath = makePath(
-      req.user.username,
-      req.params.folder,
-      req.params.fileName,
-    );
-    console.log(filePath);
-    res.sendFile(filePath);
+  (req: AuthorizedRequest, res: Response, next: NextFunction) => {
+    try {
+      const filePath = makePath(
+        req.user.username,
+        req.params.folder,
+        req.params.fileName,
+      );
+      console.log(filePath);
+      res.sendFile(filePath);
+    } catch (error) {
+      next(error);
+    }
   },
 );
 

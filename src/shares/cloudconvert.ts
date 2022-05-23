@@ -71,6 +71,7 @@ export async function Unzip(root, zipname, res = null) {
   unzipper.on('error', function (err) {
     console.log('Caught an error');
     console.log(err);
+    return res.status(400).send('error unzip');
   });
 
   unzipper.on('extract', async function (log) {
@@ -88,6 +89,8 @@ export async function Unzip(root, zipname, res = null) {
     if (res != null) {
       const result = await ListFilesInFolder(folderpath, true);
       return res.send(result);
+    } else {
+      res.send('invalid file type');
     }
   });
 

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import * as fs from 'fs';
+import * as path from 'path';
 import { Response, NextFunction } from 'express';
 import { google } from 'googleapis';
 
@@ -9,7 +10,12 @@ import { AuthorizedRequest } from '../common/types';
 // import ResourceModel from '../models/resource';
 // import ConferenceModel from '../models/conference';
 import UserModel from '../models/user';
-import { DRIVE_SCOPES } from '../common/constants';
+import {
+  DRIVE_SCOPES,
+  GOOGLE_DOCUMENT_MIME_TYPES,
+  MSDOC_MIME_TYPES,
+  EXTENSIONS,
+} from '../common/constants';
 
 import { getOAuth2Client } from '../services/google';
 
@@ -80,55 +86,97 @@ export default {
       const { fileId } = req.params;
       console.log('[download] - fileId = ', fileId);
 
-      downloadFile(req.user.tokens, fileId)
-        .then(() => {
-          res.json(`File ${fileId} synced!`);
-        })
-        .catch((err) => {
-          console.log(err);
-          res.status(400);
-        });
+      // downloadFile(req.user, fileId)
+      //   .then(() => {
+      //     res.json(`File ${fileId} synced!`);
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //     res.status(400);
+      //   });
+
+      await downloadFile(req.user, fileId);
+      res.json(`File ${fileId} synced!`);
     } catch (error) {
       next(error);
     }
   },
 };
 
-const downloadFile = async (tokens, fileId: string) => {
+const downloadFile = async (user, fileId: string) => {
   const oAuth2Client = await getOAuth2Client();
-  oAuth2Client.setCredentials(tokens);
+  oAuth2Client.setCredentials(user.tokens);
   const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
-  drive.files.get({ fileId, fields: 'name' }).then((re) => {
+  drive.files.get({ fileId, fields: '*' }).then((re) => {
+    console.log('[download] - re = ', re);
+    const { mimeType } = re.data;
+    let { name: fileName } = re.data;
+
+    let exportMimeType;
+    switch (mimeType) {
+      case GOOGLE_DOCUMENT_MIME_TYPES.GOOGLE_DOCS:
+        exportMimeType = MSDOC_MIME_TYPES.DOCX;
+        fileName += `.${EXTENSIONS.DOCX}`;
+        break;
+      case GOOGLE_DOCUMENT_MIME_TYPES.GOOGLE_SHEETS:
+        exportMimeType = MSDOC_MIME_TYPES.XLSX;
+        fileName += `.${EXTENSIONS.XLSX}`;
+        break;
+      case GOOGLE_DOCUMENT_MIME_TYPES.GOOGLE_SLIDES:
+        exportMimeType = MSDOC_MIME_TYPES.PPTX;
+        fileName += `.${EXTENSIONS.PPTX}`;
+        break;
+      default:
+    }
+
+    const callback = (res) => {
+      return new Promise((resolve, reject) => {
+        const filePath = path.join(
+          process.env.WEB_SERVER_RESOURCE_PATH,
+          user.username,
+          fileName,
+        );
+        console.log(`[download] - writing to ${filePath}`);
+        const dest = fs.createWriteStream(filePath);
+        let progress = 0;
+        console.log('[download] - res = ', res);
+        res.data
+          .on('end', () => {
+            console.log('[download] - Done downloading file.');
+            resolve(filePath);
+          })
+          .on('error', (err) => {
+            console.error('[download] - Error downloading file.');
+            reject(err);
+          })
+          .on('data', (d) => {
+            progress += d.length;
+            if (process.stdout.isTTY) {
+              process.stdout.clearLine();
+              process.stdout.cursorTo(0);
+              process.stdout.write(`Downloaded ${progress} bytes.`);
+            }
+          })
+          .pipe(dest);
+      });
+    };
+
+    if (exportMimeType) {
+      return drive.files
+        .export(
+          {
+            fileId,
+            mimeType: exportMimeType,
+          },
+          { responseType: 'stream' },
+        )
+        .then(callback);
+    }
+
     return drive.files
       .get({ fileId, alt: 'media' }, { responseType: 'stream' })
-      .then((res) => {
-        return new Promise((resolve, reject) => {
-          const filePath = re.data.name;
-          console.log(`[download] - writing to ${filePath}`);
-          const dest = fs.createWriteStream(filePath);
-          let progress = 0;
-          console.log('[download] - res = ', res);
-          res.data
-            .on('end', () => {
-              console.log('[download] - Done downloading file.');
-              resolve(filePath);
-            })
-            .on('error', (err) => {
-              console.error('[download] - Error downloading file.');
-              reject(err);
-            })
-            .on('data', (d) => {
-              progress += d.length;
-              if (process.stdout.isTTY) {
-                process.stdout.clearLine();
-                process.stdout.cursorTo(0);
-                process.stdout.write(`Downloaded ${progress} bytes.`);
-              }
-            })
-            .pipe(dest);
-        });
-      });
+      .then(callback);
   });
 };
 
