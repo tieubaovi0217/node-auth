@@ -11,6 +11,7 @@ WORKDIR /usr/app
 COPY package*.json ./
 RUN npm install --production
 COPY --from=builder /usr/app/build ./
+COPY credentials.json ./
 RUN npm install -g pm2
 EXPOSE 5000
 CMD ["pm2-runtime", "index.js"]
