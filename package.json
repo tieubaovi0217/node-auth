@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon",
-    "cpy-json": "copyfiles -f ./src/**/*.json build",
+    "cpy-json": "copyfiles -u 1 ./src/**/*.json build",
     "build": "npm run cpy-json && tsc",
     "lint": "eslint . --ext .ts",
     "test": "jest -i --coverage",
