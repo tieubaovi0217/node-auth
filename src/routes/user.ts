@@ -14,4 +14,11 @@ router.post(
   userController.saveAvatarUrl,
 );
 
+router.post(
+  '/changepassword',
+  isAuth,
+  attachUser,
+  userController.changePassword,
+);
+
 export default router;
