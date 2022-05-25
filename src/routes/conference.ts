@@ -11,4 +11,11 @@ router.post('/', isAuth, attachUser, conferenceController.createConference);
 
 router.get('/:id', isAuth, attachUser, conferenceController.getAllResourceURL);
 
+router.get(
+  '/:id/metadata',
+  isAuth,
+  attachUser,
+  conferenceController.getMetadata,
+);
+
 export default router;

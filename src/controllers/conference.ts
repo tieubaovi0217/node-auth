@@ -30,19 +30,6 @@ export default {
     next: NextFunction,
   ) {
     try {
-      // const resources = await (
-      //   await ConferenceModel.findById(req.params.id)
-      // ).populate([
-      //   {
-      //     path: 'host',
-      //   },
-      //   {
-      //     path: 'resources',
-      //     populate: {
-      //       path: 'user',
-      //     },
-      //   },
-      // ]);
       const resources = await ResourceModel.find({
         conferenceId: req.params.id,
       }).populate('user');
@@ -50,6 +37,15 @@ export default {
       res.json(resources);
     } catch (err) {
       next(err);
+    }
+  },
+
+  async getMetadata(req: AuthorizedRequest, res: Response, next: NextFunction) {
+    try {
+      const conference = await ConferenceModel.findOne({ _id: req.params.id });
+      return res.json(conference);
+    } catch (error) {
+      next(error);
     }
   },
 };
