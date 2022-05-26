@@ -119,7 +119,7 @@ export default {
       if (!existingResource) {
         const resource = new ResourceModel({
           id: req.params.id,
-          url,
+          url: url.split(/[?#]/)[0],
           type,
           user: req.user._id,
           token: AuthService.getInstance().generateJWT(req.user, '9999 years'),
@@ -127,7 +127,7 @@ export default {
         });
         await resource.save();
       } else {
-        existingResource.url = url;
+        existingResource.url = url.split(/[?#]/)[0];
         existingResource.type = type;
         existingResource.conferenceId = conferenceId;
         await existingResource.save();
