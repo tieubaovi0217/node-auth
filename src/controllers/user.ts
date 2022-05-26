@@ -17,7 +17,8 @@ export default {
     try {
       console.log(req.body);
       const { avatarUrl } = req.body;
-      req.user.avatarUrl = avatarUrl;
+      req.user.avatarUrl = avatarUrl + `?${Date.now()}`;
+      console.log('[saveAvatarUrl] - avatarUrl = ', req.user.avatarUrl);
       await req.user.save();
       res.send('Avatar url saved');
     } catch (error) {

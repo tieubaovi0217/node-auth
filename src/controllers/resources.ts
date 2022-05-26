@@ -115,6 +115,7 @@ export default {
       const existingResource = await ResourceModel.findOne({
         id: req.params.id,
       });
+      console.log('[updateResourceURL] - req.body = ', req.body);
       if (!existingResource) {
         const resource = new ResourceModel({
           id: req.params.id,
