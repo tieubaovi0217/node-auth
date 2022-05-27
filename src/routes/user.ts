@@ -7,6 +7,13 @@ import userController from '../controllers/user';
 
 const router = Router();
 
+router.get(
+  '/conferences',
+  isAuth,
+  attachUser,
+  userController.getAllOwnConferences,
+);
+
 router.post(
   '/save-avatar-url',
   isAuth,

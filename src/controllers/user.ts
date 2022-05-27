@@ -6,6 +6,8 @@ import { AuthorizedRequest } from '../common/types';
 import { Response, NextFunction } from 'express';
 import { ErrorHandler } from '../middlewares/errorHandler';
 
+import ConferenceModel from '../models/conference';
+
 config();
 
 export default {
@@ -50,6 +52,21 @@ export default {
       );
       await req.user.save();
       res.json('Update password successfully');
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getAllOwnConferences(
+    req: AuthorizedRequest,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const conferences = await ConferenceModel.find({
+        host: req.user._id,
+      }).populate('editors', 'username email _id');
+      res.json(conferences);
     } catch (error) {
       next(error);
     }
