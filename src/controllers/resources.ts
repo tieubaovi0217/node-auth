@@ -111,15 +111,19 @@ export default {
     next: NextFunction,
   ) {
     try {
-      const { url, type, conferenceId = {} } = req.body; // set conferenceId default to {} to fail validation
+      const { type, conferenceId = {} } = req.body; // set conferenceId default to {} to fail validation
+      const { url } = req.body;
       const existingResource = await ResourceModel.findOne({
         id: req.params.id,
       });
+      // if (!url.endsWith('Video')) {
+      //   url = url.split(/[?#]/)[0];
+      // }
       console.log('[updateResourceURL] - req.body = ', req.body);
       if (!existingResource) {
         const resource = new ResourceModel({
           id: req.params.id,
-          url: url.split(/[?#]/)[0],
+          url,
           type,
           user: req.user._id,
           token: AuthService.getInstance().generateJWT(req.user, '9999 years'),
@@ -127,7 +131,7 @@ export default {
         });
         await resource.save();
       } else {
-        existingResource.url = url.split(/[?#]/)[0];
+        existingResource.url = url;
         existingResource.type = type;
         existingResource.conferenceId = conferenceId;
         await existingResource.save();
