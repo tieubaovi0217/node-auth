@@ -120,17 +120,20 @@ export default {
       //   url = url.split(/[?#]/)[0];
       // }
       console.log('[updateResourceURL] - req.body = ', req.body);
+      let token;
       if (!existingResource) {
+        token = AuthService.getInstance().generateJWT(req.user, '9999 years');
         const resource = new ResourceModel({
-          id: req.params.id,
+          token,
           url,
           type,
+          id: req.params.id,
           user: req.user._id,
-          token: AuthService.getInstance().generateJWT(req.user, '9999 years'),
           conferenceId: new mongoose.Types.ObjectId(conferenceId),
         });
         await resource.save();
       } else {
+        token = existingResource.token;
         existingResource.url = url;
         existingResource.type = type;
         existingResource.conferenceId = conferenceId;
@@ -139,6 +142,7 @@ export default {
 
       res.json({
         id: req.params.id,
+        token,
         url,
         type,
         message: 'Updated successfully',
