@@ -7,6 +7,18 @@ import UserModel from '../models/user';
 import { ErrorHandler } from '../middlewares/errorHandler';
 
 export default {
+  async getAllConferences(
+    req: AuthorizedRequest,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      res.json([]);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async createConference(
     req: AuthorizedRequest,
     res: Response,
@@ -14,8 +26,8 @@ export default {
   ) {
     try {
       console.log('[createConference] - req.body = ', req.body);
-      const { name, editors, date } = req.body;
-
+      const { name, editors = [], date, timeline = [] } = req.body;
+      // return res.json({});
       const existingConference = await ConferenceModel.findOne({ name });
       if (existingConference) {
         throw new ErrorHandler(400, `Conference name '${name}' already exist!`);
@@ -40,8 +52,19 @@ export default {
         }
         supportEditors.push(existingUser._id);
       }
+
+      let previousTime = new Date(0);
+      for (const t of timeline) {
+        const currentTime = new Date(t);
+        if (currentTime < previousTime) {
+          throw new ErrorHandler(400, 'Timeline is not valid!');
+        }
+        previousTime = currentTime;
+      }
+
       const newConference = new ConferenceModel({
         name,
+        timeline,
         editors: supportEditors,
         host: req.user._id,
         startTime: new Date(date[0]),

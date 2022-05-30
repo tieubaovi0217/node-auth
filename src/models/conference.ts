@@ -19,6 +19,8 @@ const conferenceSchema = new mongoose.Schema<Conference>({
 
   endTime: { type: Date, required: true },
 
+  timeline: [{ type: mongoose.Schema.Types.Mixed }],
+
   editors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 
   resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }],

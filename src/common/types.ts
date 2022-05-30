@@ -51,4 +51,10 @@ export interface Conference {
   editors: Array<mongoose.Types.ObjectId>;
   host: mongoose.Types.ObjectId;
   resources: Array<mongoose.Types.ObjectId>;
+  timeline: Array<TimelineEvent>;
+}
+
+export interface TimelineEvent {
+  time: Date;
+  content: string;
 }
