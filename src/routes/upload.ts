@@ -6,8 +6,9 @@ import isAuth from '../middlewares/isAuth';
 import attachUser from '../middlewares/attachUser';
 
 import { ErrorHandler } from '../middlewares/errorHandler';
-import { AuthorizedRequest } from 'src/common/types';
+import { AuthorizedRequest } from '../common/types';
 import { makePath } from '../shares/makePath';
+import { ALLOWED_MIME_TYPES } from '../common/constants';
 
 const router = Router();
 
@@ -48,6 +49,22 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: { fileSize: 1000 * 1000 * 1000 }, // maximum 1GB
+
+  fileFilter: function (req: AuthorizedRequest, file, cb) {
+    // check allowed mime type
+    console.log('[fileFilter] - file = ', file);
+    const { mimetype } = file;
+    if (
+      mimetype.startsWith('image') ||
+      mimetype.startsWith('audio') ||
+      mimetype.startsWith('video') ||
+      ALLOWED_MIME_TYPES.includes(mimetype)
+    ) {
+      cb(null, true);
+    } else {
+      cb(new ErrorHandler(400, 'This file type is not allowed'));
+    }
+  },
 });
 
 router.use(
@@ -56,7 +73,7 @@ router.use(
   attachUser,
   upload.single('file'),
   async (req, res) => {
-    console.log(req.file);
+    console.log('[upload] - req.file = ', req.file);
     res.send('Files uploaded successfully');
   },
 );
