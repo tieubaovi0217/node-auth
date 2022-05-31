@@ -5,14 +5,13 @@ import isAuth from '../middlewares/isAuth';
 
 import conferenceController from '../controllers/conference';
 
-import { body } from 'express-validator';
-
-import * as _ from 'lodash';
-
+import { catchValidationErrors } from '../middlewares/errorHandler';
 import {
-  catchValidationErrors,
-  ErrorHandler,
-} from '../middlewares/errorHandler';
+  checkEndTime,
+  checkNameConference,
+  checkStartTime,
+  checkTimeline,
+} from '../middlewares/conference';
 
 const router = Router();
 
@@ -22,28 +21,25 @@ router.post(
   '/',
   isAuth,
   attachUser,
-  body('name')
-    .trim()
-    .isLength({ min: 4 })
-    .withMessage('name of conference must be at least 4 characters long'),
-  body('startTime').isISO8601().withMessage('start time is not valid'),
-  body('endTime').isISO8601().withMessage('start time is not valid'),
-  body('timeline').custom((value) => {
-    for (const t of value) {
-      if (isNaN(Date.parse(t.time))) {
-        throw new Error('timeline is not valid');
-      }
-      if (!_.isString(t.content)) {
-        throw new Error('content is not valid');
-      }
-    }
-    return true;
-  }),
+  checkNameConference,
+  checkStartTime,
+  checkEndTime,
+  checkTimeline,
   catchValidationErrors,
   conferenceController.createConference,
 );
 
-// router.put('/:id', isAuth, attachUser);
+router.put(
+  '/:id',
+  isAuth,
+  attachUser,
+  checkNameConference,
+  checkTimeline,
+  checkStartTime,
+  checkEndTime,
+  catchValidationErrors,
+  conferenceController.updateConference,
+);
 
 router.get('/:id', isAuth, attachUser, conferenceController.getAllResourceURL);
 

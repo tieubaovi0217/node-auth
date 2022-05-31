@@ -5,7 +5,6 @@ import { body } from 'express-validator';
 import { Response, Router } from 'express';
 
 import authControllers from '../controllers/auth';
-import { ErrorHandler } from '../middlewares/errorHandler';
 import { AuthorizedRequest } from '../common/types';
 
 import { catchValidationErrors } from '../middlewares/errorHandler';

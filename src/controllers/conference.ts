@@ -35,13 +35,39 @@ export default {
         throw new ErrorHandler(400, 'Conference does not exist');
       }
 
-      const { name, date, timeline = [], editors = [] } = req.body;
+      const {
+        name,
+        startTime,
+        endTime,
+        timeline = [],
+        editors = [],
+      } = req.body;
+
+      const supportEditors = [];
+      for (const editor of editors) {
+        const existingUser = await UserModel.findOne({
+          username: editor.username,
+        });
+        if (!existingUser) {
+          throw new ErrorHandler(
+            400,
+            `User '${editor.username}' does not exist!`,
+          );
+        }
+        if (editor.username === req.user.username) {
+          throw new ErrorHandler(
+            400,
+            'Editor username should not be the same as creator!',
+          );
+        }
+        supportEditors.push(existingUser._id);
+      }
 
       existingConference.name = name;
       existingConference.timeline = timeline;
-      existingConference.editors = editors;
-      existingConference.startTime = new Date(date[0]);
-      existingConference.endTime = new Date(date[1]);
+      existingConference.editors = supportEditors;
+      existingConference.startTime = startTime;
+      existingConference.endTime = endTime;
 
       await existingConference.save();
       res.json(existingConference);
@@ -88,18 +114,6 @@ export default {
           );
         }
         supportEditors.push(existingUser._id);
-      }
-
-      let previousTime = new Date(0);
-      for (const t of timeline) {
-        if (t === null) {
-          throw new ErrorHandler(400, 'Timeline is required!');
-        }
-        const currentTime = new Date(t);
-        if (currentTime < previousTime) {
-          throw new ErrorHandler(400, 'Timeline is not valid!');
-        }
-        previousTime = currentTime;
       }
 
       const newConference = new ConferenceModel({
