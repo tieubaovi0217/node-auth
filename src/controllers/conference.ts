@@ -155,4 +155,15 @@ export default {
       next(error);
     }
   },
+
+  async delete(req: AuthorizedRequest, res: Response, next: NextFunction) {
+    try {
+      const conference = await ConferenceModel.deleteOne({
+        _id: req.params.id,
+      });
+      return res.json({ ...conference, message: 'Conference Deleted!' });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

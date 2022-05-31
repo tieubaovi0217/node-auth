@@ -50,4 +50,6 @@ router.get(
   conferenceController.getMetadata,
 );
 
+router.delete('/:id', isAuth, attachUser, conferenceController.delete);
+
 export default router;
