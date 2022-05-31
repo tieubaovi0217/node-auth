@@ -11,13 +11,13 @@ import ConferenceModel from '../models/conference';
 config();
 
 export default {
-  async saveAvatarUrl(
+  async saveAvatarURL(
     req: AuthorizedRequest,
     res: Response,
     next: NextFunction,
   ) {
     try {
-      console.log(req.body);
+      console.log('[saveAvatarURL] - req.body = ', req.body);
       const { avatarUrl } = req.body;
       req.user.avatarUrl = avatarUrl + `?${Date.now()}`;
       console.log('[saveAvatarUrl] - avatarUrl = ', req.user.avatarUrl);
@@ -35,7 +35,7 @@ export default {
   ) {
     try {
       console.log('[changePassword] - req.body', req.body);
-      const { oldPassword, password, confirmPassword } = req.body;
+      const { oldPassword, password } = req.body;
       const isSamePassword = await bcrypt.compare(
         oldPassword,
         req.user.password,
@@ -43,9 +43,7 @@ export default {
       if (!isSamePassword) {
         throw new ErrorHandler(400, 'Old password wrong!');
       }
-      if (password !== confirmPassword) {
-        throw new ErrorHandler(400, 'New passwords do not match');
-      }
+
       req.user.password = await bcrypt.hash(
         password,
         Number(process.env.SALT_ROUNDS),

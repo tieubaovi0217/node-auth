@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { validationResult } from 'express-validator';
 
 export class ErrorHandler extends Error {
   statusCode: number;
@@ -11,11 +12,23 @@ export class ErrorHandler extends Error {
   }
 }
 
+export const catchValidationErrors = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const errors = validationResult(req);
+  console.log(errors);
+  if (!errors.isEmpty()) {
+    throw new ErrorHandler(400, errors.array()[0].msg);
+  }
+  next();
+};
+
 export default (
   err: ErrorHandler,
   req: Request,
   res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction,
 ) => {
   if (err.code && err.code === 'ENOENT') {

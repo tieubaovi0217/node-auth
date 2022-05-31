@@ -8,6 +8,8 @@ import authControllers from '../controllers/auth';
 import { ErrorHandler } from '../middlewares/errorHandler';
 import { AuthorizedRequest } from '../common/types';
 
+import { catchValidationErrors } from '../middlewares/errorHandler';
+
 const router = Router();
 
 router.get(
@@ -19,14 +21,7 @@ router.get(
   },
 );
 
-router.post(
-  '/login',
-  body('username')
-    .trim()
-    .isLength({ min: 4 })
-    .withMessage('username must be at least 4 characters long'),
-  authControllers.login,
-);
+router.post('/login', authControllers.login);
 
 router.post(
   '/signup',
@@ -38,11 +33,12 @@ router.post(
     .isLength({ min: 4 })
     .custom((value, { req }) => {
       if (value !== req.body.confirmPassword) {
-        throw new ErrorHandler(400, 'Passwords do not match');
+        throw new Error('Passwords do not match');
       }
 
       return value;
     }),
+  catchValidationErrors,
   authControllers.signup,
 );
 

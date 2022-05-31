@@ -6,6 +6,8 @@ import ConferenceModel from '../models/conference';
 import UserModel from '../models/user';
 import { ErrorHandler } from '../middlewares/errorHandler';
 
+import { validationResult } from 'express-validator';
+
 export default {
   async getAllConferences(
     req: AuthorizedRequest,
@@ -20,6 +22,34 @@ export default {
     }
   },
 
+  async updateConference(
+    req: AuthorizedRequest,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const existingConference = await ConferenceModel.findOne({
+        _id: req.params.id,
+      });
+      if (!existingConference) {
+        throw new ErrorHandler(400, 'Conference does not exist');
+      }
+
+      const { name, date, timeline = [], editors = [] } = req.body;
+
+      existingConference.name = name;
+      existingConference.timeline = timeline;
+      existingConference.editors = editors;
+      existingConference.startTime = new Date(date[0]);
+      existingConference.endTime = new Date(date[1]);
+
+      await existingConference.save();
+      res.json(existingConference);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async createConference(
     req: AuthorizedRequest,
     res: Response,
@@ -27,8 +57,14 @@ export default {
   ) {
     try {
       console.log('[createConference] - req.body = ', req.body);
-      const { name, editors = [], date, timeline = [] } = req.body;
-      // return res.json({});
+      const {
+        name,
+        startTime,
+        endTime,
+        timeline = [],
+        editors = [],
+      } = req.body;
+
       const existingConference = await ConferenceModel.findOne({ name });
       if (existingConference) {
         throw new ErrorHandler(400, `Conference name '${name}' already exist!`);
@@ -69,10 +105,10 @@ export default {
       const newConference = new ConferenceModel({
         name,
         timeline,
+        startTime,
+        endTime,
         editors: supportEditors,
         host: req.user._id,
-        startTime: new Date(date[0]),
-        endTime: new Date(date[1]),
       });
       await newConference.save();
       res.json(newConference);

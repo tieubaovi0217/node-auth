@@ -73,14 +73,6 @@ describe('login', () => {
     expect(res.json).toBeCalledWith({ user: 'admin', token: 'token' });
   });
 
-  it('should login fail if given a username that has less than 4 characters', async () => {
-    await auth.login(req, res, next);
-
-    expect(next).toBeCalledWith(
-      new Error('username must contain at least 4 characters'),
-    );
-  });
-
   it('should login fail if given a valid username that not exist', async () => {
     req.body = { username: 'test', password: 'test' };
 
