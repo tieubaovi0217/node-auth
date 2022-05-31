@@ -13,7 +13,8 @@ export default {
     next: NextFunction,
   ) {
     try {
-      res.json([]);
+      const conferences = await ConferenceModel.find({});
+      res.json(conferences);
     } catch (error) {
       next(error);
     }
@@ -55,6 +56,9 @@ export default {
 
       let previousTime = new Date(0);
       for (const t of timeline) {
+        if (t === null) {
+          throw new ErrorHandler(400, 'Timeline is required!');
+        }
         const currentTime = new Date(t);
         if (currentTime < previousTime) {
           throw new ErrorHandler(400, 'Timeline is not valid!');
