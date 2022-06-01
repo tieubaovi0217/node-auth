@@ -15,8 +15,6 @@ const conferenceSchema = new mongoose.Schema<Conference>({
 
   timeline: [{ type: mongoose.Schema.Types.Mixed }],
 
-  editors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-
   host: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
 

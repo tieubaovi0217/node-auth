@@ -63,7 +63,7 @@ export default {
     try {
       const conferences = await ConferenceModel.find({
         host: req.user._id,
-      }).populate('editors', 'username email _id');
+      });
       res.json(conferences);
     } catch (error) {
       next(error);

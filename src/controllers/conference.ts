@@ -35,37 +35,10 @@ export default {
         throw new ErrorHandler(400, 'Conference does not exist');
       }
 
-      const {
-        name,
-        startTime,
-        endTime,
-        timeline = [],
-        editors = [],
-      } = req.body;
-
-      const supportEditors = [];
-      for (const editor of editors) {
-        const existingUser = await UserModel.findOne({
-          username: editor.username,
-        });
-        if (!existingUser) {
-          throw new ErrorHandler(
-            400,
-            `User '${editor.username}' does not exist!`,
-          );
-        }
-        if (editor.username === req.user.username) {
-          throw new ErrorHandler(
-            400,
-            'Editor username should not be the same as creator!',
-          );
-        }
-        supportEditors.push(existingUser._id);
-      }
+      const { name, startTime, endTime, timeline = [] } = req.body;
 
       existingConference.name = name;
       existingConference.timeline = timeline;
-      existingConference.editors = supportEditors;
       existingConference.startTime = startTime;
       existingConference.endTime = endTime;
 
@@ -83,37 +56,11 @@ export default {
   ) {
     try {
       console.log('[createConference] - req.body = ', req.body);
-      const {
-        name,
-        startTime,
-        endTime,
-        timeline = [],
-        editors = [],
-      } = req.body;
+      const { name, startTime, endTime, timeline = [] } = req.body;
 
       const existingConference = await ConferenceModel.findOne({ name });
       if (existingConference) {
         throw new ErrorHandler(400, `Conference name '${name}' already exist!`);
-      }
-
-      const supportEditors = [];
-      for (const editor of editors) {
-        const existingUser = await UserModel.findOne({
-          username: editor.username,
-        });
-        if (!existingUser) {
-          throw new ErrorHandler(
-            400,
-            `User '${editor.username}' does not exist!`,
-          );
-        }
-        if (editor.username === req.user.username) {
-          throw new ErrorHandler(
-            400,
-            'Editor username should not be the same as creator!',
-          );
-        }
-        supportEditors.push(existingUser._id);
       }
 
       const newConference = new ConferenceModel({
@@ -121,7 +68,6 @@ export default {
         timeline,
         startTime,
         endTime,
-        editors: supportEditors,
         host: req.user._id,
       });
       await newConference.save();

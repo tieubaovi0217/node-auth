@@ -44,11 +44,9 @@ export interface Resource {
 }
 
 export interface Conference {
-  // id: number;
   name: string;
   startTime: Date;
   endTime: Date;
-  editors: Array<mongoose.Types.ObjectId>;
   host: mongoose.Types.ObjectId;
   resources: Array<mongoose.Types.ObjectId>;
   timeline: Array<TimelineEvent>;
