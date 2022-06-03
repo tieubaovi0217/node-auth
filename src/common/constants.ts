@@ -22,17 +22,17 @@ export const EXTENSIONS = {
   XLSX: 'xlsx',
 };
 
-export const ALLOWED_MIME_TYPES = [
-  'text/plain',
-  'text/html',
-  'application/pdf',
-  'application/msword',
-  'application/vnd.ms-powerpoint',
-  'application/vnd.ms-excel',
-  'application/vnd.google-apps.document',
-  'application/vnd.google-apps.presentation',
-  'application/vnd.google-apps.spreadsheet',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-];
+export const ALLOWED_MIME_TYPES = {
+  TEXT: 'text/plain',
+  HTML: 'text/html',
+  PDF: 'application/pdf',
+  // DOC: 'application/msword',
+  // PPT: 'application/vnd.ms-powerpoint',
+  // XLS: 'application/vnd.ms-excel',
+  // GOOGLE_DOCS: 'application/vnd.google-apps.document',
+  // GOOGLE_SLIDES: 'application/vnd.google-apps.presentation',
+  // GOOGLE_SHEETS: 'application/vnd.google-apps.spreadsheet',
+  DOCX: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  PPTX: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+};

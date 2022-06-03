@@ -58,7 +58,7 @@ const upload = multer({
       mimetype.startsWith('image') ||
       mimetype.startsWith('audio') ||
       mimetype.startsWith('video') ||
-      ALLOWED_MIME_TYPES.includes(mimetype)
+      Object.values(ALLOWED_MIME_TYPES).includes(mimetype)
     ) {
       cb(null, true);
     } else {
