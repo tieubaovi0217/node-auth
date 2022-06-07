@@ -7,7 +7,7 @@ import { Response, NextFunction } from 'express';
 
 import { ErrorHandler } from '../middlewares/errorHandler';
 
-import { makePath } from '../shares/makePath';
+import { makeResourcePath } from '../shares/makeResourcePath';
 import { AuthorizedRequest } from '../common/types';
 import { regexCheckFolder } from '../common/constants';
 import ResourceModel from '../models/resource';
@@ -30,7 +30,7 @@ export default {
         throw new ErrorHandler(400, 'Invalid folder name');
       }
       await fs.promises.mkdir(
-        makePath(
+        makeResourcePath(
           req.user.username,
           req.body.destination,
           req.body.newFolderName,
@@ -48,7 +48,7 @@ export default {
     next: NextFunction,
   ) {
     try {
-      const deletePath = makePath(req.user.username, req.body.path);
+      const deletePath = makeResourcePath(req.user.username, req.body.path);
 
       const stat = await fs.promises.stat(deletePath);
       if (stat.isDirectory()) {
@@ -68,7 +68,7 @@ export default {
 
   async rename(req: AuthorizedRequest, res: Response, next: NextFunction) {
     try {
-      const oldPath = makePath(
+      const oldPath = makeResourcePath(
         req.user.username,
         req.body.currentPath,
         req.body.oldPath,
@@ -91,7 +91,7 @@ export default {
         }
       }
 
-      const newPath = makePath(
+      const newPath = makeResourcePath(
         req.user.username,
         req.body.currentPath,
         req.body.newPath,

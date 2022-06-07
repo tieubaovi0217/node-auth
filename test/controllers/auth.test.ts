@@ -2,11 +2,11 @@ import * as fs from 'fs';
 import AuthService from '../../src/services/auth';
 import auth from '../../src/controllers/auth';
 import { validationResult } from 'express-validator';
-import { makePath } from '../../src/shares/makePath';
+import { makeResourcePath } from '../../src/shares/makeResourcePath';
 
 jest.mock('../../src/services/auth');
 jest.mock('express-validator');
-jest.mock('../../src/shares/makePath');
+jest.mock('../../src/shares/makeResourcePath');
 
 let req: any;
 let res: any;
@@ -88,7 +88,9 @@ describe('signup', () => {
 
     const mkdirMock = jest.spyOn(fs.promises, 'mkdir');
     (mkdirMock as jest.MockedFunction<any>).mockResolvedValue(true);
-    (makePath as jest.MockedFunction<any>).mockImplementation(() => 'abcd');
+    (makeResourcePath as jest.MockedFunction<any>).mockImplementation(
+      () => 'abcd',
+    );
 
     await auth.signup(req, res, next);
 

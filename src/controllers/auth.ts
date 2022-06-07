@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { config } from 'dotenv';
 
 import AuthService from '../services/auth';
-import { makePath } from '../shares/makePath';
+import { makeResourcePath } from '../shares/makeResourcePath';
 
 import { Request, Response, NextFunction } from 'express';
 
@@ -31,7 +31,7 @@ export default {
     try {
       const { user, token } = await AuthService.getInstance().signUp(req.body);
 
-      await fs.promises.mkdir(makePath(user.username, ''));
+      await fs.promises.mkdir(makeResourcePath(user.username, ''));
       res.json({ user, token });
     } catch (err) {
       next(err);

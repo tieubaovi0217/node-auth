@@ -6,13 +6,13 @@ jest.mock('path', () => {
   };
 });
 
-import { makePath } from '../../src/shares/makePath';
+import { makeResourcePath } from '../../src/shares/makeResourcePath';
 
 it('should make path correctly', () => {
   process.env.WEB_SERVER_RESOURCE_PATH = '/tmp/root';
   const username = 'test';
 
-  const result = makePath(username, 'folderA', 'fileB.txt');
+  const result = makeResourcePath(username, 'folderA', 'fileB.txt');
 
   const expected = '/tmp/root/test/folderA/fileB.txt';
   expect(result).toBe(expected);

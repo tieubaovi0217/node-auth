@@ -7,7 +7,7 @@ import { ListFilesInFolder, Unzip, ConvertFile } from '../shares/cloudconvert';
 import isAuth from '../middlewares/isAuth';
 import attachUser from '../middlewares/attachUser';
 import { AuthorizedRequest } from '../common/types';
-import { makePath } from '../shares/makePath';
+import { makeResourcePath } from '../shares/makeResourcePath';
 
 const router = Router();
 
@@ -17,8 +17,11 @@ router.get(
   attachUser,
   async (req: AuthorizedRequest, res: Response, next: NextFunction) => {
     try {
-      const filePath = makePath(req.user.username, req.params.fileName);
-      const folderPath = makePath(req.user.username, path.parse(filePath).name);
+      const filePath = makeResourcePath(req.user.username, req.params.fileName);
+      const folderPath = makeResourcePath(
+        req.user.username,
+        path.parse(filePath).name,
+      );
       console.log('file path:' + filePath);
       console.log('folder path:' + folderPath);
       if (fs.existsSync(folderPath)) {
@@ -51,7 +54,7 @@ router.get(
   attachUser,
   (req: AuthorizedRequest, res: Response, next: NextFunction) => {
     try {
-      const filePath = makePath(
+      const filePath = makeResourcePath(
         req.user.username,
         req.params.folder,
         req.params.fileName,

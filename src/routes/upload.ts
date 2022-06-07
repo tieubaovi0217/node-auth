@@ -7,7 +7,7 @@ import attachUser from '../middlewares/attachUser';
 
 import { ErrorHandler } from '../middlewares/errorHandler';
 import { AuthorizedRequest } from '../common/types';
-import { makePath } from '../shares/makePath';
+import { makeResourcePath } from '../shares/makeResourcePath';
 import { ALLOWED_MIME_TYPES } from '../common/constants';
 
 const router = Router();
@@ -17,7 +17,10 @@ const storage = multer.diskStorage({
     // store files to corresponding directory for each user
     // create a directory if user has registered
 
-    const userDirectoryPath = makePath(req.user.username, req.body.destination);
+    const userDirectoryPath = makeResourcePath(
+      req.user.username,
+      req.body.destination,
+    );
 
     try {
       await fs.promises.mkdir(userDirectoryPath);
@@ -28,7 +31,7 @@ const storage = multer.diskStorage({
     }
   },
   filename: async function (req: AuthorizedRequest, file, cb) {
-    const filePath = makePath(
+    const filePath = makeResourcePath(
       req.user.username,
       req.body.destination,
       file.originalname,

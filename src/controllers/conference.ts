@@ -3,10 +3,9 @@ import { AuthorizedRequest } from '../common/types';
 
 import ResourceModel from '../models/resource';
 import ConferenceModel from '../models/conference';
-import UserModel from '../models/user';
+
 import { ErrorHandler } from '../middlewares/errorHandler';
 
-import { validationResult } from 'express-validator';
 
 export default {
   async getAllConferences(
