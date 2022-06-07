@@ -18,7 +18,11 @@ export const checkTimeline = body('timeline').custom((value, { req }: any) => {
       throw new Error('timeline is required!');
     }
     const currentTime = new Date(t.time);
-    if (currentTime < previousTime) {
+    if (
+      currentTime < previousTime ||
+      new Date(req.body.startTime) > currentTime ||
+      currentTime > new Date(req.body.endTime)
+    ) {
       throw new Error('timeline is not valid!');
     }
     previousTime = currentTime;
