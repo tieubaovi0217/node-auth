@@ -54,7 +54,7 @@ export default {
       const { state: userId } = req.query;
       await UserModel.updateOne({ _id: userId }, { tokens: tokens });
 
-      res.redirect(`${process.env.WEB_URL}/root`);
+      res.redirect(`${process.env.WEB_URL}/root?path=google:drive`);
     } catch (error) {
       next(error);
     }
