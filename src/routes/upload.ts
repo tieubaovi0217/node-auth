@@ -8,7 +8,7 @@ import attachUser from '../middlewares/attachUser';
 import { ErrorHandler } from '../middlewares/errorHandler';
 import { AuthorizedRequest } from '../common/types';
 import { makeResourcePath } from '../shares/makeResourcePath';
-import { ALLOWED_MIME_TYPES } from '../common/constants';
+import { isSupportedMimeType } from '../common/helpers';
 
 const router = Router();
 
@@ -57,12 +57,7 @@ const upload = multer({
     // check allowed mime type
     console.log('[fileFilter] - file = ', file);
     const { mimetype } = file;
-    if (
-      mimetype.startsWith('image') ||
-      mimetype.startsWith('audio') ||
-      mimetype.startsWith('video') ||
-      Object.values(ALLOWED_MIME_TYPES).includes(mimetype)
-    ) {
+    if (isSupportedMimeType(mimetype)) {
       cb(null, true);
     } else {
       cb(new ErrorHandler(400, 'This file type is not allowed'));

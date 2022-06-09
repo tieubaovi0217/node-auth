@@ -18,6 +18,8 @@ import {
 } from '../common/constants';
 
 import { getOAuth2Client } from '../services/google';
+import { ErrorHandler } from '../middlewares/errorHandler';
+import { isSupportedMimeType } from '../common/helpers';
 
 export default {
   async getOAuth2URL(
@@ -108,10 +110,14 @@ const downloadFile = async (user, fileId: string) => {
   oAuth2Client.setCredentials(user.tokens);
   const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
-  drive.files.get({ fileId, fields: '*' }).then((re) => {
+  return drive.files.get({ fileId, fields: '*' }).then((re) => {
     console.log('[download] - re = ', re);
     const { mimeType } = re.data;
     let { name: fileName } = re.data;
+
+    if (!isSupportedMimeType(mimeType)) {
+      throw new ErrorHandler(400, 'File type is not allowed');
+    }
 
     let exportMimeType;
     switch (mimeType) {
