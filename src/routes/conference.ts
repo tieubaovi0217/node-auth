@@ -15,7 +15,7 @@ import {
 
 const router = Router();
 
-router.get('/', isAuth, attachUser, conferenceController.getAllConferences);
+router.get('/', conferenceController.getAllConferences);
 
 router.post(
   '/',
