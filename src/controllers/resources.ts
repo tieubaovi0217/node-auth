@@ -11,6 +11,7 @@ import { makeResourcePath } from '../shares/makeResourcePath';
 import { AuthorizedRequest } from '../common/types';
 import { regexCheckFolder } from '../common/constants';
 import ResourceModel from '../models/resource';
+import UserModel from '../models/user';
 import AuthService from '../services/auth';
 
 import * as mongoose from 'mongoose';
@@ -111,15 +112,17 @@ export default {
     next: NextFunction,
   ) {
     try {
-      const { type, conferenceId = {} } = req.body; // set conferenceId default to {} to fail validation
-      const { url } = req.body;
+      const { url, hostName, type, conferenceId = {} } = req.body; // set conferenceId default to {} to fail validation
       const existingResource = await ResourceModel.findOne({
         id: req.params.id,
       });
-      // if (!url.endsWith('Video')) {
-      //   url = url.split(/[?#]/)[0];
-      // }
       console.log('[updateResourceURL] - req.body = ', req.body);
+
+      const host = await UserModel.findOne({ username: hostName });
+      if (!host) {
+        throw new ErrorHandler(400, `User ${hostName} not found`);
+      }
+
       let token;
       if (!existingResource) {
         token = AuthService.getInstance().generateJWT(req.user, '9999 years');
@@ -127,6 +130,7 @@ export default {
           token,
           url,
           type,
+          host: host._id,
           id: req.params.id,
           user: req.user._id,
           conferenceId: new mongoose.Types.ObjectId(conferenceId),
@@ -137,6 +141,7 @@ export default {
         existingResource.url = url;
         existingResource.type = type;
         existingResource.conferenceId = conferenceId;
+        existingResource.hostId = host._id;
         await existingResource.save();
       }
 
@@ -145,7 +150,8 @@ export default {
         token,
         url,
         type,
-        message: 'Updated successfully',
+        hostName,
+        message: 'Updated resource successfully',
       });
     } catch (err) {
       next(err);

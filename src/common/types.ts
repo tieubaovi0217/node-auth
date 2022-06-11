@@ -41,6 +41,7 @@ export interface Resource {
   type: 'Picture' | 'Document' | 'Video';
   user: mongoose.Types.ObjectId;
   conferenceId: mongoose.Types.ObjectId;
+  hostId: mongoose.Types.ObjectId;
 }
 
 export interface Conference {

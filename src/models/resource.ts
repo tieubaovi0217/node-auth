@@ -26,6 +26,11 @@ const resourceSchema = new mongoose.Schema<Resource>({
     required: true,
   },
 
+  hostId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+
   token: {
     type: String,
     required: true,
