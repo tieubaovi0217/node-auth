@@ -6,7 +6,6 @@ import ConferenceModel from '../models/conference';
 
 import { ErrorHandler } from '../middlewares/errorHandler';
 
-
 export default {
   async getAllConferences(
     req: AuthorizedRequest,
@@ -84,9 +83,19 @@ export default {
     try {
       const resources = await ResourceModel.find({
         conferenceId: req.params.id,
-      }).populate('user');
+      })
+        .populate('user')
+        .populate('hostId', 'username');
 
-      res.json(resources);
+      console.log(resources);
+
+      const result = resources.map((r: any) => {
+        return {
+          ...r._doc,
+          hostName: r._doc?.hostId?.username,
+        };
+      });
+      res.json(result);
     } catch (err) {
       next(err);
     }
