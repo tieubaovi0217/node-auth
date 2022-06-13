@@ -22,7 +22,7 @@ export default {
       req.user.avatarUrl = avatarUrl + `?${Date.now()}`;
       console.log('[saveAvatarUrl] - avatarUrl = ', req.user.avatarUrl);
       await req.user.save();
-      res.send('Avatar url saved');
+      res.json({ avatarUrl: req.user.avatarUrl });
     } catch (error) {
       next(error);
     }
