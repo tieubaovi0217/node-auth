@@ -42,4 +42,16 @@ router.post(
   userController.changePassword,
 );
 
+router.post(
+  '/',
+  isAuth,
+  attachUser,
+  body('phoneNumber')
+    .isString()
+    .isLength({ min: 10 })
+    .withMessage('phone number must be a string and at least 10 characters'),
+  catchValidationErrors,
+  userController.updateInfo,
+);
+
 export default router;

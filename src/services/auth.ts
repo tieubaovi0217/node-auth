@@ -43,6 +43,8 @@ export default class AuthService {
         username,
         email: userRecord.email,
         avatarUrl: userRecord.avatarUrl,
+        phoneNumber: userRecord.phoneNumber || '',
+        address: userRecord.address || '',
       },
       token: this.generateJWT(userRecord),
     };
@@ -72,6 +74,8 @@ export default class AuthService {
       user: {
         username,
         email,
+        phoneNumber: '',
+        address: '',
       },
       token: this.generateJWT(newUserDoc),
     };

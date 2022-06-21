@@ -8,6 +8,8 @@ export interface UserPayload {
   username: string;
   email: string;
   avatarUrl?: string;
+  phoneNumber: string;
+  address: string;
 }
 
 export interface LoginPayload {
@@ -21,6 +23,13 @@ export interface User extends Document {
   password: string;
   avatarUrl?: string;
   tokens: any;
+  phoneNumber: string;
+  address: string;
+}
+
+export interface UserContactInfo {
+  phoneNumber: string;
+  address: string;
 }
 
 export interface DecodedJwtToken {

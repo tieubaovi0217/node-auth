@@ -24,6 +24,14 @@ const userSchema = new mongoose.Schema<User>({
     type: String,
   },
 
+  phoneNumber: {
+    type: String,
+  },
+
+  address: {
+    type: String,
+  },
+
   tokens: {
     type: mongoose.Schema.Types.Mixed,
   },

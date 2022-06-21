@@ -16,7 +16,9 @@ router.get(
   isAuth,
   attachUser,
   (req: AuthorizedRequest, res: Response) => {
-    res.json({ username: req.user.username, email: req.user.email });
+    req.user.password = undefined;
+    req.user.tokens = undefined;
+    res.json(req.user);
   },
 );
 

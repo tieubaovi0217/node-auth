@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { config } from 'dotenv';
 
-import { AuthorizedRequest } from '../common/types';
+import { AuthorizedRequest, UserContactInfo } from '../common/types';
 
 import { Response, NextFunction } from 'express';
 import { ErrorHandler } from '../middlewares/errorHandler';
@@ -65,6 +65,27 @@ export default {
         host: req.user._id,
       });
       res.json(conferences);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updateInfo(
+    req: AuthorizedRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<UserContactInfo | void> {
+    try {
+      console.log('[updateInfo] - req.body = ', req.body);
+      const { phoneNumber, address } = req.body;
+      req.user.phoneNumber = phoneNumber;
+      req.user.address = address;
+      await req.user.save();
+
+      res.json({
+        phoneNumber: req.user.phoneNumber,
+        address: req.user.address,
+      });
     } catch (error) {
       next(error);
     }
