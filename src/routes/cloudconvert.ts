@@ -34,7 +34,7 @@ router.get(
         // convert file and make folder
         const zipName = await ConvertFile(filePath, req.user.username);
         Unzip(
-          `${process.env.WEB_SERVER_RESOURCE_PATH}/${req.user.username}`,
+          `${process.env.WEB_SERVER_RESOURCE_PATH}\\${req.user.username}`,
           zipName,
           res,
         );
