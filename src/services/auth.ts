@@ -6,6 +6,7 @@ import UserModel from '../models/user';
 import { ErrorHandler } from '../middlewares/errorHandler';
 
 import { DecodedJwtToken, LoginPayload, User } from '../common/types';
+import { DEFAULT_AVATAR_URL } from '../common/constants';
 
 config();
 
@@ -67,6 +68,7 @@ export default class AuthService {
       username,
       email,
       password: hashedPassword,
+      avatarUrl: DEFAULT_AVATAR_URL,
     });
     const newUserDoc = await newUser.save();
 
@@ -76,6 +78,7 @@ export default class AuthService {
         email,
         phoneNumber: '',
         address: '',
+        avatarUrl: newUserDoc.avatarUrl,
       },
       token: this.generateJWT(newUserDoc),
     };

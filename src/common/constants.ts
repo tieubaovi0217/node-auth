@@ -28,3 +28,6 @@ export const ALLOWED_MIME_TYPES = {
   XLSX: MSDOC_MIME_TYPES.XLSX,
   PPTX: MSDOC_MIME_TYPES.PPTX,
 };
+
+export const DEFAULT_AVATAR_URL =
+  'https://d1a370nemizbjq.cloudfront.net/2923050f-d67d-45bc-b47e-2235fc6a3fa2.glb';
