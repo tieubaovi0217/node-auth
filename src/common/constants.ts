@@ -23,8 +23,6 @@ export const EXTENSIONS = {
 };
 
 export const ALLOWED_MIME_TYPES = {
-  TEXT: 'text/plain',
-  HTML: 'text/html',
   PDF: 'application/pdf',
   DOCX: MSDOC_MIME_TYPES.DOCX,
   XLSX: MSDOC_MIME_TYPES.XLSX,
