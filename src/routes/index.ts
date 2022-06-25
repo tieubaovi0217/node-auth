@@ -6,7 +6,7 @@ import uploadRouter from './upload';
 import cloudConvertRouter from './cloudconvert';
 import userRouter from './user';
 import conferenceRouter from './conference';
-import googleDriveRouter from './googleDrive';
+import googleDriveRouter from './google';
 
 const app = express();
 

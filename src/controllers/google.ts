@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
+import { config } from 'dotenv';
+
+import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Response, NextFunction } from 'express';
@@ -20,6 +23,8 @@ import {
 import { getOAuth2Client } from '../services/google';
 import { ErrorHandler } from '../middlewares/errorHandler';
 import { isSupportedMimeType } from '../common/helpers';
+
+config();
 
 export default {
   async getOAuth2URL(
@@ -99,6 +104,23 @@ export default {
 
       await downloadFile(req.user, fileId);
       res.json(`File ${fileId} synced!`);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async textToSpeech(
+    req: AuthorizedRequest,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      console.log(req.body);
+      const resp = await axios.post(
+        `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${process.env.API_KEY}`,
+        req.body,
+      );
+      res.json(resp.data);
     } catch (error) {
       next(error);
     }
