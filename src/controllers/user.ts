@@ -35,13 +35,15 @@ export default {
   ) {
     try {
       console.log('[changePassword] - req.body', req.body);
-      const { oldPassword, password } = req.body;
-      const isSamePassword = await bcrypt.compare(
-        oldPassword,
-        req.user.password,
-      );
-      if (!isSamePassword) {
-        throw new ErrorHandler(400, 'Old password wrong!');
+      const { oldPassword, password, isReset = false } = req.body;
+      if (!isReset) {
+        const isSamePassword = await bcrypt.compare(
+          oldPassword,
+          req.user.password,
+        );
+        if (!isSamePassword) {
+          throw new ErrorHandler(400, 'Old password wrong!');
+        }
       }
 
       req.user.password = await bcrypt.hash(

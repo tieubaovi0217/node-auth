@@ -17,7 +17,6 @@ export default (req: AuthorizedRequest, res: Response, next: NextFunction) => {
     try {
       const token =
         (req.query.token as string) || req.headers.authorization.split(' ')[1];
-      console.log(token);
       const decoded = jwt.verify(token, process.env.SECRET_KEY) as any;
       req.token = decoded;
       next();

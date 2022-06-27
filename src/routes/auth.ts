@@ -47,4 +47,6 @@ router.post('/logout', isAuth, async (req, res) => {
   res.send('Logout');
 });
 
+router.post('/forgot', authControllers.forgotPassword);
+
 export default router;
