@@ -3,6 +3,9 @@ import * as morgan from 'morgan';
 import * as mongoose from 'mongoose';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
+import * as https from 'https';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { DEFAULT_PORT, RETRY_TIME } from './common/constants';
 
@@ -32,7 +35,16 @@ app.use(errorHandlerMiddleware);
 const main = () => {
   doRetryConnectDB(() => {
     const PORT = process.env.PORT || DEFAULT_PORT;
-    app.listen(PORT, async () => {
+
+    const httpsServer = https.createServer(
+      {
+        key: fs.readFileSync(path.join(__dirname, 'example.key')),
+        cert: fs.readFileSync(path.join(__dirname, 'example.crt')),
+      },
+      app,
+    );
+
+    httpsServer.listen(PORT, async () => {
       console.log(`Server is listening at port ${PORT}`);
     });
   });

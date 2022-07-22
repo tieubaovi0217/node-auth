@@ -6,7 +6,8 @@
   "scripts": {
     "start": "nodemon",
     "cpy-json": "copyfiles -u 1 ./src/**/*.json build",
-    "build": "npm run cpy-json && tsc",
+    "cpy-cert": "copyfiles -u 1 ./src/example.crt ./src/example.key build",
+    "build": "npm run cpy-json && npm run cpy-cert && tsc",
     "lint": "eslint . --ext .ts",
     "test": "jest -i --coverage",
     "serve": "npm run build && pm2-runtime build/index.js"
