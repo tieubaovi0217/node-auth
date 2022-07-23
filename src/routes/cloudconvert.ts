@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { config } from 'dotenv';
 import * as path from 'path';
 import { NextFunction, Response, Router } from 'express';
 
@@ -11,6 +12,7 @@ import { makeResourcePath } from '../shares/makeResourcePath';
 
 const router = Router();
 
+config();
 router.get(
   '/:fileName',
   isAuth,
@@ -34,7 +36,7 @@ router.get(
         // convert file and make folder
         const zipName = await ConvertFile(filePath, req.user.username);
         Unzip(
-          `${process.env.WEB_SERVER_RESOURCE_PATH}\\${req.user.username}`,
+          path.join(process.env.WEB_SERVER_RESOURCE_PATH, req.user.username),
           zipName,
           res,
         );
