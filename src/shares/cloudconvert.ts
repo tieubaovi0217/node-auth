@@ -52,15 +52,21 @@ export async function ListFilesInFolder(folderpath, resize = false) {
     },
   );
   console.log(filteredTree);
+  const RATIO = 2;
   if (resize == true) {
     for (let i = 0; i < filteredTree.children.length; ++i) {
       console.log(filteredTree.children[i].path);
-      await ResizeImage(filteredTree.children[i].path, 5);
+      await ResizeImage(filteredTree.children[i].path, RATIO);
       //   var childPath = filteredTree.children[i].path;
       //   filteredTree.children[i].path = path.relative('/tmp/root', childPath)
     }
   }
-  return JSON.stringify(filteredTree);
+  return filteredTree.children.map((r) => {
+    return `${process.env.REACT_APP_API_URL}/root/${path
+      .relative(process.env.WEB_SERVER_RESOURCE_PATH, r.path)
+      .replaceAll('\\', '/')
+      .replace(/([^:]\/)\/+/g, '$1')}`;
+  });
 }
 
 export async function Unzip(root, zipname, res = null) {
@@ -107,7 +113,7 @@ export async function Unzip(root, zipname, res = null) {
   // console.log("finish extract");
 }
 
-export async function ConvertFile(filepath, username) {
+export async function ConvertFile(fileName, dest) {
   let job = await cloudConvert.jobs.create({
     tasks: {
       'import-1': {
@@ -131,13 +137,9 @@ export async function ConvertFile(filepath, username) {
 
   const uploadTask = job.tasks.filter((task) => task.name === 'import-1')[0];
 
-  const inputFile = fs.createReadStream(filepath);
+  const inputFile = fs.createReadStream(path.join(dest, fileName));
 
-  await cloudConvert.tasks.upload(
-    uploadTask,
-    inputFile,
-    path.parse(filepath).base,
-  );
+  await cloudConvert.tasks.upload(uploadTask, inputFile, fileName);
 
   job = await cloudConvert.jobs.wait(job.id); // Wait for job completion
 
@@ -146,10 +148,8 @@ export async function ConvertFile(filepath, username) {
   )[0];
   const file = exportTask.result.files[0];
 
-  const zipname = path.parse(filepath).name + '.zip';
-  const writeStream = fs.createWriteStream(
-    `${process.env.WEB_SERVER_RESOURCE_PATH}/${username}/${zipname}`,
-  );
+  const zipname = path.parse(fileName).name + '.zip';
+  const writeStream = fs.createWriteStream(path.join(dest, zipname));
 
   https.get(file.url, function (response) {
     response.pipe(writeStream);

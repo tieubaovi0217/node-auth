@@ -93,6 +93,7 @@ export default {
         return {
           ...r._doc,
           hostName: r._doc?.hostId?.username,
+          //   url: r._doc.url.replace('localhost', '172.16.0.150'),
         };
       });
       res.json(result);
