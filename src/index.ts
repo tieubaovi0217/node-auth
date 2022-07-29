@@ -21,7 +21,9 @@ config();
 
 const app = express();
 
-const DATABASE_URL = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?authSource=admin`;
+// const DATABASE_URL = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?authSource=admin`;
+
+const DATABASE_URL = process.env.DATABASE_URL;
 
 // app.use(cors());
 app.use(morgan('common'));
