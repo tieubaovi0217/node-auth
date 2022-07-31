@@ -64,7 +64,6 @@ export async function ListFilesInFolder(folderpath, resize = false) {
   return filteredTree.children.map((r) => {
     return `${process.env.REACT_APP_API_URL}/root/${path
       .relative(process.env.WEB_SERVER_RESOURCE_PATH, r.path)
-      .replaceAll('\\', '/')
       .replace(/([^:]\/)\/+/g, '$1')}`;
   });
 }

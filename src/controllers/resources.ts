@@ -123,9 +123,11 @@ export default {
         throw new ErrorHandler(400, `User ${hostName} not found`);
       }
 
-      let token;
+      const token = AuthService.getInstance().generateJWT(
+        req.user,
+        '9999 years',
+      );
       if (!existingResource) {
-        token = AuthService.getInstance().generateJWT(req.user, '9999 years');
         const resource = new ResourceModel({
           token,
           url,
@@ -137,7 +139,7 @@ export default {
         });
         await resource.save();
       } else {
-        token = existingResource.token;
+        existingResource.token = token;
         existingResource.url = url;
         existingResource.type = type;
         existingResource.conferenceId = conferenceId;
